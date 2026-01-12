@@ -15,7 +15,7 @@ export class PostAppService {
 
   async getPostAppList(getPostAppListDto: GetPostAppListDto): Promise<{ success: boolean; data: PostAppListResponse[] | null; code: string }> {
     try {
-      const { mem_id, post_type } = getPostAppListDto;
+      const { account_app_id, post_type } = getPostAppListDto;
 
       const queryBuilder = this.postAppRepository
         .createQueryBuilder('pa')
@@ -36,13 +36,10 @@ export class PostAppService {
             ELSE  'Y'
           END AS read_yn`
         )
-        .innerJoin('members', 'm', 'm.mem_id = :memId', { memId: mem_id })
-        .leftJoin(
-          'member_post_app',
-          'mpa',
-          'pa.post_app_id = mpa.post_app_id AND mpa.mem_id = m.mem_id',
-        )
-        .where('m.app_reg_dt <= pa.reg_dt')
+        .innerJoin('member_account_app', 'maa', 'maa.account_app_id = :account_app_id', { account_app_id: account_app_id })
+        .leftJoin('member_post_app', 'mpa', 'pa.post_app_id = mpa.post_app_id AND mpa.account_app_id = maa.account_app_id')
+        .where('maa.reg_dt <= pa.reg_dt')
+        .andWhere('pa.del_yn = :delYn', { delYn: 'N' })
         .andWhere(
           new Brackets((qb) => {
             qb.where(
@@ -97,7 +94,7 @@ export class PostAppService {
 
   async insertMemberPostApp(insertMemberPostAppDto: InsertMemberPostAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { mem_id, post_app_id } = insertMemberPostAppDto;
+      const { account_app_id, post_app_id } = insertMemberPostAppDto;
       
       const reg_dt = getCurrentDateYYYYMMDDHHIISS();
       
@@ -106,13 +103,13 @@ export class PostAppService {
         .insert()
         .into('member_post_app')
         .values({
-          mem_id: mem_id,
+          account_app_id: account_app_id,
           post_app_id: post_app_id,
           read_yn: 'Y',
           read_dt: reg_dt,
           del_yn: 'N',
           reg_dt: reg_dt,
-          reg_id: mem_id,
+          reg_id: account_app_id,
           mod_dt: null,
           mod_id: null
         })
@@ -138,7 +135,7 @@ export class PostAppService {
 
   async updateMemberPostApp(updateMemberPostAppDto: UpdateMemberPostAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { mem_id, member_post_app_id, read_yn } = updateMemberPostAppDto;
+      const { account_app_id, member_post_app_id, read_yn } = updateMemberPostAppDto;
       
       const reg_dt = getCurrentDateYYYYMMDDHHIISS();
       
@@ -149,7 +146,7 @@ export class PostAppService {
           read_yn: read_yn,
           read_dt: reg_dt,
           mod_dt: reg_dt,
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where('member_post_app_id = :member_post_app_id', { member_post_app_id })
         .execute();
@@ -174,7 +171,7 @@ export class PostAppService {
 
   async deleteMemberPostApp(deleteMemberPostAppDto: DeleteMemberPostAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { mem_id, post_app_id } = deleteMemberPostAppDto;
+      const { account_app_id, post_app_id } = deleteMemberPostAppDto;
       
       const reg_dt = getCurrentDateYYYYMMDDHHIISS();
       
@@ -184,10 +181,10 @@ export class PostAppService {
         .set({
           del_yn: 'Y',
           mod_dt: reg_dt,
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where('post_app_id IN (:...post_app_ids)', { post_app_ids: post_app_id })
-        .andWhere('mem_id = :mem_id', { mem_id: mem_id })
+        .andWhere('account_app_id = :account_app_id', { account_app_id: account_app_id })
         .execute();
       
       return {

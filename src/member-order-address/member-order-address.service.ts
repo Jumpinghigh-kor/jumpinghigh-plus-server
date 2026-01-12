@@ -14,7 +14,7 @@ export class MemberOrderAddressService {
     private dataSource: DataSource
   ) {}
 
-  async getMemberOrderAddressList(mem_id: string): Promise<{ success: boolean; data: any[] | null; code: string }> {
+  async getMemberOrderAddressList(account_app_id: string): Promise<{ success: boolean; data: any[] | null; code: string }> {
     try {
       const memberOrderAddressList = await this.dataSource
         .createQueryBuilder()
@@ -41,11 +41,11 @@ export class MemberOrderAddressService {
               ) AS extra_zip_code
             `
         ])
-        .from('members', 'm')
-        .leftJoin('member_order_app', 'moa', 'm.mem_id = moa.mem_id')
+        .from('member_account_app', 'mca')
+        .leftJoin('member_order_app', 'moa', 'mca.account_app_id = moa.account_app_id')
         .leftJoin('member_order_detail_app', 'moda', 'moa.order_app_id = moda.order_app_id')
         .leftJoin('member_order_address', 'moad', 'moda.order_detail_app_id = moad.order_detail_app_id')
-        .where('m.mem_id = :mem_id', { mem_id })
+        .where('mca.account_app_id = :account_app_id', { account_app_id })
         .andWhere('moa.del_yn = "N"')
         .andWhere('moad.use_yn = "Y"')
         .getRawMany();
@@ -83,7 +83,7 @@ export class MemberOrderAddressService {
         .select([
           'moa.order_address_id AS order_address_id'
           , 'moa.order_detail_app_id AS order_detail_app_id'
-          , 'moa.mem_id AS mem_id'
+          , 'moa.account_app_id AS account_app_id'
           , 'moa.order_address_type AS order_address_type'
           , 'moa.receiver_name AS receiver_name'
           , 'moa.receiver_phone AS receiver_phone'
@@ -125,13 +125,11 @@ export class MemberOrderAddressService {
     }
   }
 
-  async insertMemberOrderAddress(insertMemberOrderAddressDto: InsertMemberOrderAddressDto, mem_id: number): Promise<{ success: boolean; data: { order_address_id: number } | null; code: string }> {
+  async insertMemberOrderAddress(insertMemberOrderAddressDto: InsertMemberOrderAddressDto, account_app_id: number): Promise<{ success: boolean; data: { order_address_id: number } | null; code: string }> {
     try {
-      const { order_detail_app_id, mem_id, receiver_name, receiver_phone, address, address_detail, zip_code, enter_way, enter_memo, delivery_request, order_address_type } = insertMemberOrderAddressDto;
+      const { order_detail_app_id, account_app_id, receiver_name, receiver_phone, address, address_detail, zip_code, enter_way, enter_memo, delivery_request, order_address_type } = insertMemberOrderAddressDto;
       const reg_dt = getCurrentDateYYYYMMDDHHIISS();
       
-      // RETURN 타입 주소는 동일 order_detail_app_id 에 대해 항상 하나만 use_yn = 'Y' 가 되도록
-      // 기존 RETURN 주소(use_yn = 'Y')를 모두 비활성화한다.
       if (order_address_type === 'RETURN') {
         await this.dataSource
           .createQueryBuilder()
@@ -139,7 +137,7 @@ export class MemberOrderAddressService {
           .set({
             use_yn: 'N',
             mod_dt: reg_dt,
-            mod_id: mem_id,
+            mod_id: account_app_id,
           })
           .where('order_detail_app_id = :order_detail_app_id', { order_detail_app_id })
           .andWhere('order_address_type = :order_address_type', { order_address_type: 'RETURN' })
@@ -153,7 +151,7 @@ export class MemberOrderAddressService {
         .into('member_order_address')
         .values({
           order_detail_app_id: order_detail_app_id,
-          mem_id: mem_id,
+          account_app_id: account_app_id,
           order_address_type: order_address_type,
           receiver_name: receiver_name,
           receiver_phone: receiver_phone,
@@ -165,7 +163,7 @@ export class MemberOrderAddressService {
           delivery_request: delivery_request,
           use_yn: 'Y',
           reg_dt: reg_dt,
-          reg_id: mem_id,
+          reg_id: account_app_id,
           mod_dt: null,
           mod_id: null
         })
@@ -193,7 +191,7 @@ export class MemberOrderAddressService {
 
   async updateMemberOrderAddress(updateMemberOrderAddressDto: UpdateMemberOrderAddressDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { order_address_id, mem_id, receiver_name, receiver_phone, address, address_detail, zip_code, enter_way, enter_memo, delivery_request, use_yn } = updateMemberOrderAddressDto;
+      const { order_address_id, account_app_id, receiver_name, receiver_phone, address, address_detail, zip_code, enter_way, enter_memo, delivery_request, use_yn } = updateMemberOrderAddressDto;
       const result = await this.memberOrderAddressRepository
         .createQueryBuilder()
         .update('member_order_address')
@@ -208,7 +206,7 @@ export class MemberOrderAddressService {
           delivery_request: delivery_request,
           use_yn: use_yn,
           mod_dt: getCurrentDateYYYYMMDDHHIISS(),
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where("order_address_id = :order_address_id", { order_address_id })
         .execute();
@@ -241,14 +239,14 @@ export class MemberOrderAddressService {
 
   async updateMemberOrderAddressType(updateMemberOrderAddressTypeDto: UpdateMemberOrderAddressTypeDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { order_address_id, mem_id, order_address_type } = updateMemberOrderAddressTypeDto;
+      const { order_address_id, account_app_id, order_address_type } = updateMemberOrderAddressTypeDto;
       const result = await this.memberOrderAddressRepository
         .createQueryBuilder()
         .update('member_order_address')
         .set({
           order_address_type: order_address_type,
           mod_dt: getCurrentDateYYYYMMDDHHIISS(),
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where("order_address_id = :order_address_id", { order_address_id })
         .execute();
@@ -281,14 +279,14 @@ export class MemberOrderAddressService {
 
   async updateMemberOrderAddressUseYn(useYMemberOrderAddressDto: UpdateMemberOrderAddressUseYnDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { order_address_id, mem_id, use_yn } = useYMemberOrderAddressDto;
+      const { order_address_id, account_app_id, use_yn } = useYMemberOrderAddressDto;
       const result = await this.memberOrderAddressRepository
         .createQueryBuilder()
         .update('member_order_address')
         .set({
           use_yn: use_yn,
           mod_dt: getCurrentDateYYYYMMDDHHIISS(),
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where("order_address_id = :order_address_id", { order_address_id })
         .execute();
@@ -322,7 +320,7 @@ export class MemberOrderAddressService {
 
   async updateOrderDetailAppId(updateData: UpdateOrderDetailAppIdDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { mem_id, order_address_id, order_detail_app_id } = updateData;
+      const { account_app_id, order_address_id, order_detail_app_id } = updateData;
 
       const result = await this.dataSource
         .createQueryBuilder()
@@ -330,7 +328,7 @@ export class MemberOrderAddressService {
         .set({
           order_detail_app_id: order_detail_app_id,
           mod_dt: getCurrentDateYYYYMMDDHHIISS(),
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where("order_address_id = :order_address_id", { order_address_id: order_address_id })
         .execute();
@@ -362,14 +360,14 @@ export class MemberOrderAddressService {
 
   async deleteMemberOrderAddress(deleteMemberOrderAddressDto: DeleteMemberOrderAddressDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { order_detail_app_id, mem_id } = deleteMemberOrderAddressDto;
+      const { order_detail_app_id, account_app_id } = deleteMemberOrderAddressDto;
       const result = await this.memberOrderAddressRepository
         .createQueryBuilder()
         .update('member_order_address')
         .set({
           use_yn: 'N',
           mod_dt: getCurrentDateYYYYMMDDHHIISS(),
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where("order_detail_app_id = :order_detail_app_id", { order_detail_app_id })
         .execute();

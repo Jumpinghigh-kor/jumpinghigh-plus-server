@@ -25,44 +25,44 @@ export class MemberController {
 
   @Post('checkNicknameDuplicate')
   async checkNicknameDuplicate(
-    @Body() body: { mem_nickname: string }
+    @Body() body: { nickname: string }
   ): Promise<{ success: boolean; message: string; code: string }> {
-    return this.memberService.checkNicknameDuplicate(body.mem_nickname);
+    return this.memberService.checkNicknameDuplicate(body.nickname);
   }
 
   @Post('completeSignup')
   async completeSignup(
-    @Body() body: { mem_id: number, mem_nickname: string }
+    @Body() body: { account_app_id: number, nickname: string }
   ): Promise<{ success: boolean; message: string; code: string }> {
     return this.memberService.completeSignup(body);
   }
 
   @Post('updateMemberWithdrawal')
   async updateMemberWithdrawal(
-    @Body() body: { mem_id: number }
+    @Body() body: { account_app_id: number }
   ): Promise<{ success: boolean; message: string; code: string }> {
-    return this.memberService.updateMemberWithdrawal(body.mem_id);
+    return this.memberService.updateMemberWithdrawal(body.account_app_id);
   }
 
   @Post('updatePushToken')
   async updatePushToken(
     @Body() updatePushTokenDto: UpdatePushTokenDto
   ): Promise<{ success: boolean; message: string; code: string }> {
-    return this.memberService.updatePushToken(updatePushTokenDto.mem_id, updatePushTokenDto.push_token);
+    return this.memberService.updatePushToken(updatePushTokenDto.account_app_id, updatePushTokenDto.push_token);
   }
 
   @Post('updatePushYn')
   async updatePushYn(
     @Body() updatePushYnDto: UpdatePushYnDto
   ): Promise<{ success: boolean; message: string; code: string }> {
-    return this.memberService.updatePushYn(updatePushYnDto.mem_id, updatePushYnDto.push_yn);
+    return this.memberService.updatePushYn(updatePushYnDto.account_app_id, updatePushYnDto.push_yn);
   }
 
   @Post('updateRecentDt')
   async updateRecentDt(
-    @Body() body: { mem_id: number }
+    @Body() body: { account_app_id: number }
   ): Promise<{ success: boolean; message: string; code: string }> {
-    return this.memberService.updateRecentDt(body.mem_id);
+    return this.memberService.updateRecentDt(body.account_app_id);
   }
 
   @Public()
@@ -76,16 +76,16 @@ export class MemberController {
   @Public()
   @Post('findPassword')
   async findPassword(
-    @Body() body: { mem_id: number, mem_app_id: string, mem_name: string, mem_phone: string }
-  ): Promise<{ success: boolean; message: string; code: string; data?: { mem_id: number, temporary_password?: string } }> {
+    @Body() body: { login_id: string, mem_name: string, mem_phone: string }
+  ): Promise<{ success: boolean; message: string; code: string; data?: { account_app_id: number, temporary_password?: string } }> {
     return this.memberService.findPassword(body);
   }
 
   @Public()
   @Post('updateChangeNickname')
   async updateChangeNickname(
-    @Body() body: { mem_id: number, mem_nickname: string }
+    @Body() body: { account_app_id: number, nickname: string }
   ): Promise<{ success: boolean; message: string; code: string }> {
-    return this.memberService.updateChangeNickname(body.mem_id, body.mem_nickname);
+    return this.memberService.updateChangeNickname(body.account_app_id, body.nickname);
   }
 } 

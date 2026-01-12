@@ -12,7 +12,7 @@ export class MemberReviewApp {
   product_app_id: number;
 
   @Column()
-  mem_id: number;
+  account_app_id: number;
 
   @Column()
   title: string;

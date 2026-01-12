@@ -9,7 +9,7 @@ export class MemberOrderAddress {
   order_detail_app_id: number;
   
   @Column()
-  mem_id: number;
+  account_app_id: number;
 
   @Column()
   order_address_type: string;

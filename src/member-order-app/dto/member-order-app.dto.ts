@@ -4,7 +4,7 @@ import { Transform } from 'class-transformer';
 export class GetMemberOrdersDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsOptional()
   @Transform(({ value }) => String(value))
@@ -41,7 +41,7 @@ export interface MemberOrderAppResponse {
 export class InsertMemberOrderAppDto {
   @IsNumber()
   @IsNotEmpty()
-  mem_id: number;
+  account_app_id: number;
 
   @IsString()
   @IsNotEmpty()
@@ -91,7 +91,7 @@ export class InsertMemberOrderDetailAppDto {
   
   @IsNumber()
   @IsNotEmpty()
-  mem_id: number;
+  account_app_id: number;
 
   @IsNumber()
   @IsNotEmpty()
@@ -145,7 +145,7 @@ export class InsertMemberOrderDetailAppDto {
 export class UpdateOrderStatusDto {
   @IsNumber()
   @IsNotEmpty()
-  mem_id: number;
+  account_app_id: number;
 
   @IsArray()
   @ArrayNotEmpty()
@@ -164,7 +164,7 @@ export class UpdateOrderStatusDto {
 export class UpdateOrderQuantityDto {
   @IsNumber()
   @IsNotEmpty()
-  mem_id: number;
+  account_app_id: number;
 
   @IsNumber()
   @IsNotEmpty()
@@ -178,7 +178,7 @@ export class UpdateOrderQuantityDto {
 export class UpdateMemberOrderDetailAppDto {
   @IsNumber()
   @IsNotEmpty()
-  mem_id: number;
+  account_app_id: number;
 
   @IsArray()
   @ArrayNotEmpty()

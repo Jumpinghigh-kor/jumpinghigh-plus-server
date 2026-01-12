@@ -6,7 +6,7 @@ export class RefreshToken {
   refresh_token_id: number;
 
   @Column()
-  mem_id: number;
+  account_app_id: number;
 
   @Column()
   token: string;

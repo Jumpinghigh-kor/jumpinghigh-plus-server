@@ -13,7 +13,7 @@ export class MemberSearchAppService {
 
   async getSearchProduct(searchProductDto: SearchProductDto): Promise<{ success: boolean; data: any[] | null; code: string }> {
     try {
-      const { keyword, mem_id, search_type } = searchProductDto;
+      const { keyword, account_app_id, search_type } = searchProductDto;
       
       // 검색어가 없으면 빈 배열 반환
       if (!keyword || keyword.trim() === '') {
@@ -74,17 +74,17 @@ export class MemberSearchAppService {
       }
       
       // 회원 ID가 있으면 찜 정보도 조회
-      if (mem_id) {
+      if (account_app_id) {
         queryBuilder.addSelect(`(
             SELECT
               zzim_yn
             FROM  member_zzim_app
             WHERE product_app_id = p.product_app_id
-            AND   mem_id = :mem_id
+            AND   account_app_id = :account_app_id
             AND   zzim_yn = 'Y'
           ) AS zzim_yn`
         )
-        .setParameter('mem_id', mem_id);
+        .setParameter('account_app_id', account_app_id);
       }
 
       // 정렬 조건 추가
@@ -147,13 +147,13 @@ export class MemberSearchAppService {
 
   async getMemberSearchAppList(getMemberSearchAppListDto: GetMemberSearchAppListDto): Promise<{ success: boolean; data: any[] | null; code: string }> {
     try {
-      const { mem_id } = getMemberSearchAppListDto;
+      const { account_app_id } = getMemberSearchAppListDto;
       
       const searchList = await this.dataSource.manager
         .createQueryBuilder()
         .select([
           'search_app_id',
-          'mem_id',
+          'account_app_id',
           'keyword',
           'del_yn',
           'reg_dt',
@@ -161,7 +161,7 @@ export class MemberSearchAppService {
         ])
         .from('member_search_app', 'msa')
         .where('msa.del_yn = :del_yn', { del_yn: 'N' })
-        .andWhere('msa.mem_id = :mem_id', { mem_id })
+        .andWhere('msa.account_app_id = :account_app_id', { account_app_id })
         .orderBy('msa.search_app_id', 'DESC')
         .limit(5)
         .getRawMany();
@@ -191,7 +191,7 @@ export class MemberSearchAppService {
 
   async deleteMemberSearchApp(deleteMemberSearchAppDto: DeleteMemberSearchAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { search_app_id, mem_id } = deleteMemberSearchAppDto;
+      const { search_app_id, account_app_id } = deleteMemberSearchAppDto;
       
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const mod_dt = getCurrentDateYYYYMMDDHHIISS();
@@ -203,7 +203,7 @@ export class MemberSearchAppService {
         .set({
           del_yn: 'Y',
           mod_dt: mod_dt,
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where('search_app_id = :search_app_id', { search_app_id })
         .execute();
@@ -236,7 +236,7 @@ export class MemberSearchAppService {
 
   async insertMemberSearchApp(insertMemberSearchAppDto: InsertMemberSearchAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { keyword, mem_id } = insertMemberSearchAppDto;
+      const { keyword, account_app_id } = insertMemberSearchAppDto;
       
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const reg_dt = getCurrentDateYYYYMMDDHHIISS();
@@ -248,7 +248,7 @@ export class MemberSearchAppService {
         .select('search_app_id')
         .from('member_search_app', 'msa')
         .where('msa.keyword = :keyword', { keyword })
-        .andWhere('msa.mem_id = :mem_id', { mem_id })
+        .andWhere('msa.account_app_id = :account_app_id', { account_app_id })
         .andWhere('msa.del_yn = :del_yn', { del_yn: 'N' })
         .getRawOne();
         
@@ -258,7 +258,7 @@ export class MemberSearchAppService {
           .update('member_search_app')
           .set({
             mod_dt: mod_dt,
-            mod_id: mem_id
+            mod_id: account_app_id
           })
           .where('search_app_id = :search_app_id', { search_app_id: existingSearch.search_app_id })
           .execute();
@@ -268,11 +268,11 @@ export class MemberSearchAppService {
           .insert()
           .into('member_search_app')
           .values({
-            mem_id: mem_id,
+            account_app_id: account_app_id,
             keyword: keyword,
             del_yn: 'N',
             reg_dt: reg_dt,
-            reg_id: mem_id,
+            reg_id: account_app_id,
             mod_dt: null,
             mod_id: null
           })

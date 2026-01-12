@@ -27,11 +27,12 @@ export class MemberScheduleAppService {
           , `(
               SELECT
                 COUNT(*)
-              FROM  members sm
-              WHERE sm.mem_sch_id = s.sch_id
-              AND   sm.mem_app_status = 'ACTIVE'
-              AND   sm.center_id = :center_id
-          ) as mem_total_sch_cnt`
+              FROM      members sm
+              LEFT JOIN member_account_app smaa ON sm.mem_id = smaa.mem_id
+              WHERE     sm.mem_sch_id = s.sch_id
+              AND       smaa.status = 'ACTIVE'
+              AND       sm.center_id = :center_id
+          ) AS mem_total_sch_cnt`
           , `(
               SELECT
                 sm.mem_sch_id
@@ -42,10 +43,11 @@ export class MemberScheduleAppService {
           , `(
               SELECT
                 COUNT(*)
-              FROM  members sm
-              WHERE sm.mem_sch_id = s.sch_id
-              AND   sm.mem_app_status = 'ACTIVE'
-              AND   sm.center_id = :center_id
+              FROM      members sm
+              LEFT JOIN member_account_app smaa ON sm.mem_id = smaa.mem_id
+              WHERE     sm.mem_sch_id = s.sch_id
+              AND       smaa.status = 'ACTIVE'
+              AND       sm.center_id = :center_id
             ) AS mem_total_sch_cnt`
           , `(
               SELECT
@@ -95,13 +97,13 @@ export class MemberScheduleAppService {
     }
   }
 
-  async getMemberScheduleAppList(mem_id: number): Promise<{ success: boolean; data: any[] | null; code: string }> {
+  async getMemberScheduleAppList(account_app_id: number): Promise<{ success: boolean; data: any[] | null; code: string }> {
     try {
       const schedules = await this.dataSource
         .createQueryBuilder()
         .select([
           'sch_app_id'
-          , 'mem_id'
+          , 'account_app_id'
           , 'original_sch_id'
           , 'reservation_sch_id'
           , 'sch_dt'
@@ -119,12 +121,12 @@ export class MemberScheduleAppService {
           ) AS sch_time`
         ])
         .from('member_schedule_app', 'msa')
-        .where('msa.mem_id = :mem_id', { mem_id })
+        .where('msa.account_app_id = :account_app_id', { account_app_id })
         .andWhere('msa.del_yn = :del_yn', { del_yn: 'N' })
         .orderBy(`
                   CASE
                     WHEN msa.sch_dt = DATE_FORMAT(NOW(), '%Y%m%d') THEN 1
-                    WHEN msa.sch_dt > DATE_FORMAT(NOW(), '%Y%m%d') THEN sch_dt
+                    WHEN msa.sch_dt > DATE_FORMAT(NOW(), '%Y%m%d') THEN 2
                     ELSE 3
                   END`, 'ASC')
         .getRawMany();
@@ -157,7 +159,7 @@ export class MemberScheduleAppService {
 
   async insertMemberScheduleApp(insertMemberScheduleDto: InsertMemberScheduleAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { mem_id, reservation_sch_id, sch_dt, original_sch_id, center_id, mem_name } = insertMemberScheduleDto;
+      const { account_app_id, reservation_sch_id, sch_dt, original_sch_id, center_id, mem_name, agree_yn } = insertMemberScheduleDto;
       
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
@@ -168,15 +170,15 @@ export class MemberScheduleAppService {
         .insert()
         .into('member_schedule_app')
         .values({
-          mem_id: mem_id,
+          account_app_id: account_app_id,
           original_sch_id: original_sch_id,
           reservation_sch_id: reservation_sch_id,
           sch_dt: sch_dt,
-          agree_yn: null,
+          agree_yn: agree_yn ?? null,
           del_yn: 'N',
           admin_memo: null,
           reg_dt: currentDate,
-          reg_id: mem_id
+          reg_id: account_app_id
         })
         .execute();
       
@@ -192,20 +194,22 @@ export class MemberScheduleAppService {
       };
 
       // 알림 테이블에 insert
-      await this.dataSource
-        .createQueryBuilder()
-        .insert()
-        .into('notifications')
-        .values({
-          not_user_id: center_id,
-          not_type: '예약 시간 등록 알림',
-          not_title: '예약 시간 등록 알림',
-          not_message: mem_name + '님이 ' + formatDate(sch_dt) + '에 예약을 하였습니다. 수락할지 거절할지 결정해주세요.',
-          not_is_read: '0',
-          not_created_at: () => "NOW()",
-          not_read_at: null
-        })
-        .execute();
+      if (reservation_sch_id !== original_sch_id) {
+        await this.dataSource
+          .createQueryBuilder()
+          .insert()
+          .into('notifications')
+          .values({
+            not_user_id: center_id,
+            not_type: '예약 시간 등록 알림',
+            not_title: '예약 시간 등록 알림',
+            not_message: mem_name + '님이 ' + formatDate(sch_dt) + '에 예약을 하였습니다. 수락할지 거절할지 결정해주세요.',
+            not_is_read: '0',
+            not_created_at: () => "NOW()",
+            not_read_at: null
+          })
+          .execute();
+      }
       
       return {
         success: true,
@@ -227,7 +231,7 @@ export class MemberScheduleAppService {
 
   async deleteMemberScheduleApp(deleteMemberScheduleAppDto: DeleteMemberScheduleAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { sch_app_id, mem_id } = deleteMemberScheduleAppDto;
+      const { sch_app_id, account_app_id } = deleteMemberScheduleAppDto;
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
       
@@ -255,7 +259,8 @@ export class MemberScheduleAppService {
           , 'm.center_id AS center_id'
         ])
         .from('member_schedule_app', 'msa')
-        .leftJoin('members', 'm', 'm.mem_id = msa.mem_id')
+        .leftJoin('member_account_app', 'maa', 'maa.account_app_id = msa.account_app_id')
+        .leftJoin('members', 'm', 'm.mem_id = maa.mem_id')
         .where('msa.sch_app_id IN (:...scheduleIds)', { scheduleIds })
         .andWhere('msa.del_yn = :del_yn', { del_yn: 'N' })
         .getRawMany();
@@ -271,7 +276,7 @@ export class MemberScheduleAppService {
           .set({
             del_yn: 'Y',
             mod_dt: currentDate,
-            mod_id: mem_id
+            mod_id: account_app_id
           })
           .where('sch_app_id IN (:...sch_app_ids)', { sch_app_ids: sch_app_id })
           .execute();
@@ -283,7 +288,7 @@ export class MemberScheduleAppService {
           .set({
             del_yn: 'Y',
             mod_dt: currentDate,
-            mod_id: mem_id
+            mod_id: account_app_id
           })
           .where('sch_app_id = :sch_app_id', { sch_app_id })
           .execute();
@@ -299,6 +304,13 @@ export class MemberScheduleAppService {
 
       // 각 삭제된 스케줄에 대해 알림 생성
       for (const scheduleInfo of scheduleInfos) {
+        // 예약 마감(현재 날짜 YYYYMMDD > sch_dt)이면 취소 알림을 보내지 않음
+        const todayYYYYMMDD = Number(String(currentDate).slice(0, 8));
+        const schDtYYYYMMDD = Number(String((scheduleInfo as any).sch_dt).slice(0, 8));
+        if (Number.isFinite(todayYYYYMMDD) && Number.isFinite(schDtYYYYMMDD) && todayYYYYMMDD > schDtYYYYMMDD) {
+          continue;
+        }
+
         await this.dataSource
           .createQueryBuilder()
           .insert()
@@ -335,7 +347,7 @@ export class MemberScheduleAppService {
 
   async updateMemberScheduleApp(updateMemberScheduleAppDto: UpdateMemberScheduleAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { sch_app_id, reservation_sch_id, mem_id, center_id, mem_name, sch_dt } = updateMemberScheduleAppDto;
+      const { sch_app_id, reservation_sch_id, account_app_id, center_id, mem_name, sch_dt, agree_yn } = updateMemberScheduleAppDto;
       
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
@@ -346,9 +358,9 @@ export class MemberScheduleAppService {
         .update('member_schedule_app')
         .set({
           reservation_sch_id: reservation_sch_id,
-          agree_yn: null,
+          agree_yn: agree_yn ?? null,
           mod_dt: currentDate,
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where('sch_app_id = :sch_app_id', { sch_app_id })
         .execute();

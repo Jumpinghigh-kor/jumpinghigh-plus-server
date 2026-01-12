@@ -4,7 +4,7 @@ import { Transform } from 'class-transformer';
 export class GetInquiryAppListDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class InsertInquiryAppDto {
@@ -19,7 +19,7 @@ export class InsertInquiryAppDto {
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class UpdateInquiryAppDto {
@@ -38,7 +38,7 @@ export class UpdateInquiryAppDto {
 
   @IsOptional()
   @Transform(({ value }) => Number(value))
-  mem_id?: number;
+  account_app_id?: number;
 
   @IsOptional()
   @Transform(({ value }) => Number(value))
@@ -52,7 +52,7 @@ export class DeleteInquiryAppDto {
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 }
 
 export interface InquiryAppListResponse {

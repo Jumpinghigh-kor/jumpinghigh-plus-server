@@ -9,7 +9,7 @@ export class MemberPostApp {
   post_app_id: number;
 
   @Column()
-  mem_id: number;
+  account_app_id: number;
 
   @Column({ nullable: true })
   read_yn: string;

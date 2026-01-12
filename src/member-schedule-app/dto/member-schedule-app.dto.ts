@@ -4,7 +4,7 @@ import { Transform } from 'class-transformer';
 export class GetMemberScheduleAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class GetCenterScheduleAppDto {
@@ -24,7 +24,7 @@ export class GetCenterScheduleAppDto {
 export class InsertMemberScheduleAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
@@ -33,6 +33,10 @@ export class InsertMemberScheduleAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
   original_sch_id: number;
+
+  @IsOptional()
+  @IsString()
+  agree_yn: string;
 
   @IsNotEmpty()
   @IsString()
@@ -59,7 +63,7 @@ export class DeleteMemberScheduleAppDto {
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class UpdateMemberScheduleAppDto {
@@ -73,7 +77,7 @@ export class UpdateMemberScheduleAppDto {
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
@@ -86,6 +90,10 @@ export class UpdateMemberScheduleAppDto {
   @IsNotEmpty()
   @IsString()
   sch_dt: string;
+
+  @IsOptional()
+  @IsString()
+  agree_yn: string;
 }
 
 export interface MemberScheduleResponse {

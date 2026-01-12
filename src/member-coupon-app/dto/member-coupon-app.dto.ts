@@ -8,7 +8,7 @@ export class MemberCouponApp {
   member_coupon_app_id: number;
 
   @Column()
-  mem_id: number;
+  account_app_id: number;
 
   @Column()
   coupon_app_id: number;
@@ -35,7 +35,7 @@ export class MemberCouponApp {
 export class GetMemberCouponAppListDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsOptional()
   use_yn?: string;
@@ -68,7 +68,7 @@ export class MemberCouponAppListResponse {
 export class DeleteMemberCouponAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
@@ -82,7 +82,7 @@ export class UpdateMemberCouponAppDto {
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))

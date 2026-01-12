@@ -15,7 +15,6 @@ export class MemberOrdersService {
   async getMemberOrdersList(getMemberOrdersDto: GetMemberOrdersDto): Promise<{ success: boolean; data: MemberOrderResponse[]; code: string }> {
     try {
       const { mem_id } = getMemberOrdersDto;
-      
       const orders = await this.memberRepository
         .createQueryBuilder('m')
         .select([

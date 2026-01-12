@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export interface MemberOrderAddressResponse {
-  mem_id: number;
+  account_app_id: number;
   order_address_id: number;
   receiver_name: string;
   receiver_phone: string;
@@ -20,7 +20,7 @@ export class InsertMemberOrderAddressDto {
 
   @IsNumber()
   @IsNotEmpty()
-  mem_id: number;
+  account_app_id: number;
 
   @IsString()
   @IsOptional()
@@ -66,7 +66,7 @@ export class UpdateMemberOrderAddressDto {
 
   @IsNumber()
   @IsNotEmpty()
-  mem_id: number;
+  account_app_id: number;
 
   @IsString()
   @IsNotEmpty()
@@ -112,7 +112,7 @@ export class UpdateMemberOrderAddressTypeDto {
 
   @IsNumber()
   @IsNotEmpty()
-  mem_id: number;
+  account_app_id: number;
 
   @IsString()
   @IsNotEmpty()
@@ -126,7 +126,7 @@ export class DeleteMemberOrderAddressDto {
 
   @IsNumber()
   @IsNotEmpty()
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class UpdateMemberOrderAddressUseYnDto {
@@ -136,7 +136,7 @@ export class UpdateMemberOrderAddressUseYnDto {
 
   @IsNumber()
   @IsNotEmpty()
-  mem_id: number;
+  account_app_id: number;
 
   @IsString()
   @IsNotEmpty()
@@ -146,7 +146,7 @@ export class UpdateMemberOrderAddressUseYnDto {
 export class UpdateOrderDetailAppIdDto {
   @IsNumber()
   @IsNotEmpty()
-  mem_id: number;
+  account_app_id: number;
 
   @IsNumber()
   @IsNotEmpty()

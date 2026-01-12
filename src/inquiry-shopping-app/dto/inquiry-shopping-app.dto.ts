@@ -8,7 +8,7 @@ export class InquiryShoppingAppDto {
 
   @IsNumber()
   @IsNotEmpty()
-  mem_id: number;
+  account_app_id: number;
 
   @IsNumber()
   @IsNotEmpty()
@@ -42,7 +42,7 @@ export class InquiryShoppingAppDto {
 export class InsertInquiryShoppingAppDto {
   @IsNumber()
   @IsNotEmpty()
-  mem_id: number;
+  account_app_id: number;
 
   @IsNumber()
   @IsNotEmpty()

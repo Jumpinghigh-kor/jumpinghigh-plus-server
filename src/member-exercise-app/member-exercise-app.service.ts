@@ -16,7 +16,7 @@ export class MemberExerciseAppService {
   async insertMemberExerciseApp(insertMemberExerciseAppDto: InsertMemberExerciseAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
       const { 
-        mem_id, 
+        account_app_id, 
         exercise_dt, 
         jumping_exercise_time, 
         jumping_intensity_level, 
@@ -35,7 +35,7 @@ export class MemberExerciseAppService {
         .insert()
         .into(MemberExerciseApp)
         .values({
-          mem_id,
+          account_app_id,
           exercise_dt,
           jumping_exercise_time,
           jumping_intensity_level,
@@ -71,7 +71,7 @@ export class MemberExerciseAppService {
     try {
       const { 
         exercise_app_id,
-        mem_id,
+        account_app_id,
         jumping_exercise_time, 
         jumping_intensity_level,
         jumping_heart_rate,
@@ -88,7 +88,7 @@ export class MemberExerciseAppService {
         other_exercise_time,
         other_exercise_calory,
         mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-        mod_id: mem_id
+        mod_id: account_app_id
       };
 
       if(jumping_heart_rate !== null && jumping_heart_rate !== undefined) {
@@ -132,13 +132,13 @@ export class MemberExerciseAppService {
 
   async getMemberExerciseAppInfo(getMemberExerciseAppInfoDto: GetMemberExerciseAppInfoDto): Promise<{ success: boolean; data: MemberExerciseAppInfoResponse | null; code: string }> {
     try {
-      const { mem_id, exercise_dt } = getMemberExerciseAppInfoDto;
+      const { account_app_id, exercise_dt } = getMemberExerciseAppInfoDto;
       // Using the provided SQL query
       const exerciseInfo = await this.memberExerciseAppRepository
         .createQueryBuilder('me')
         .select([
           'exercise_app_id',
-          'mem_id',
+          'account_app_id',
           'exercise_dt',
           'jumping_exercise_time',
           'jumping_intensity_level',
@@ -147,7 +147,7 @@ export class MemberExerciseAppService {
           'other_exercise_time',
           'other_exercise_calory'
         ])
-        .where('me.mem_id = :mem_id', { mem_id })
+        .where('me.account_app_id = :account_app_id', { account_app_id })
         .andWhere('me.exercise_dt = :exercise_dt', { exercise_dt })
         .getRawOne();
 
@@ -178,14 +178,14 @@ export class MemberExerciseAppService {
 
   async getMemberExerciseAppList(getMemberExerciseAppListDto: GetMemberExerciseAppListDto): Promise<{ success: boolean; data: MemberExerciseAppListResponse[] | null; code: string }> {
     try {
-      const { mem_id, year_month, period } = getMemberExerciseAppListDto;
+      const { account_app_id, year_month, period } = getMemberExerciseAppListDto;
       
       // 기본 쿼리 빌더
       const queryBuilder = this.memberExerciseAppRepository
         .createQueryBuilder('me')
         .select([
           'exercise_app_id',
-          'mem_id',
+          'account_app_id',
           'exercise_dt',
           'jumping_exercise_time',
           'jumping_intensity_level',
@@ -194,7 +194,7 @@ export class MemberExerciseAppService {
           'other_exercise_time',
           'other_exercise_calory'
         ])
-        .where('me.mem_id = :mem_id', { mem_id });
+        .where('me.account_app_id = :account_app_id', { account_app_id });
       
       // all_date가 true이면 모든 날짜 데이터 조회 (추가 조건 없음)
       if (year_month === 'all_date') {

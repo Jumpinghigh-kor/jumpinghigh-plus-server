@@ -10,7 +10,7 @@ export class MemberReturnAppController {
 
   @Post('/getMemberReturnAppList')
   getMemberReturnAppList(@Body() getMemberReturnAppDto: GetMemberReturnAppDto) {
-    return this.memberReturnAppService.getMemberReturnAppList(getMemberReturnAppDto.mem_id, getMemberReturnAppDto.order_detail_app_id, getMemberReturnAppDto.type, getMemberReturnAppDto.search_content, getMemberReturnAppDto.year);
+    return this.memberReturnAppService.getMemberReturnAppList(getMemberReturnAppDto.account_app_id, getMemberReturnAppDto.order_detail_app_id, getMemberReturnAppDto.type, getMemberReturnAppDto.search_content, getMemberReturnAppDto.year);
   }
 
   @Post('/getMemberReturnAppDetail')
@@ -30,7 +30,7 @@ export class MemberReturnAppController {
     @Body() updateMemberReturnAppDto: UpdateMemberReturnAppDto
   ): Promise<{ success: boolean; data: any | null; code: string }> {
     return this.memberReturnAppService.updateMemberReturnApp({
-      mem_id: updateMemberReturnAppDto.mem_id,
+      account_app_id: updateMemberReturnAppDto.account_app_id,
       order_detail_app_ids: updateMemberReturnAppDto.order_detail_app_ids,
       return_reason_type: updateMemberReturnAppDto.return_reason_type,
       reason: updateMemberReturnAppDto.reason,
@@ -56,13 +56,13 @@ export class MemberReturnAppController {
   @Post('/updateMemberReturnAppApprovalYn')
   async updateMemberReturnAppApprovalYn(
     @Body() payload: {
-      mem_id: string;
+      account_app_id: string;
       order_detail_app_ids: number[];
       approval_yn: string;
     }
   ): Promise<{ success: boolean; data: any | null; code: string }> {
     return this.memberReturnAppService.updateMemberReturnAppApprovalYn({
-      mem_id: payload.mem_id,
+      account_app_id: payload.account_app_id,
       order_detail_app_ids: payload.order_detail_app_ids,
       approval_yn: payload.approval_yn
     });

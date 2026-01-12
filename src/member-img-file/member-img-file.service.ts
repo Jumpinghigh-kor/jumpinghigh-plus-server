@@ -13,7 +13,7 @@ export class MemberImgFileService {
 
   async selectMemberImgFile(selectMemberImgFileDto: SelectMemberImgFileDto): Promise<{ success: boolean; data: any[] | null; code: string }> {
     try {
-      const { mem_id } = selectMemberImgFileDto;
+      const { account_app_id } = selectMemberImgFileDto;
 
       const memberImgFiles = await this.dataSource
         .createQueryBuilder()
@@ -36,7 +36,7 @@ export class MemberImgFileService {
         ])
         .from('member_img_file', 'mif')
         .leftJoin('common_file', 'cf', 'mif.file_id = cf.file_id')
-        .where('mif.mem_id = :mem_id', { mem_id })
+        .where('mif.account_app_id = :account_app_id', { account_app_id })
         .andWhere("mif.del_yn = 'N'")
         .andWhere("mif.use_yn = 'Y'")
         .getRawMany();
@@ -57,14 +57,14 @@ export class MemberImgFileService {
 
   async memberImgFileCnt(memberImgFileCntDto: MemberImgFileCntDto): Promise<{ success: boolean; data: { imgCnt: number } | null; code: string }> {
     try {
-      const { mem_id } = memberImgFileCntDto;
+      const { account_app_id } = memberImgFileCntDto;
 
       const result = await this.dataSource
         .createQueryBuilder()
         .select('COUNT(*) AS imgCnt')
         .from('member_img_file', 'mif')
         .leftJoin('common_file', 'cf', 'mif.file_id = cf.file_id')
-        .where('mif.mem_id = :mem_id', { mem_id })
+        .where('mif.account_app_id = :account_app_id', { account_app_id })
         .andWhere("mif.del_yn = 'N'")
         .andWhere("mif.use_yn = 'Y'")
         .getRawOne();
@@ -86,7 +86,7 @@ export class MemberImgFileService {
   async insertMemberImgFile(insertMemberImgFileDto: InsertMemberImgFileDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
       const {
-        mem_id,
+        account_app_id,
         file_id
       } = insertMemberImgFileDto;
 
@@ -97,12 +97,12 @@ export class MemberImgFileService {
         .insert()
         .into('member_img_file')
         .values({
-          mem_id,
+          account_app_id,
           file_id,
           use_yn: 'Y',
           del_yn: 'N',
           reg_dt,
-          reg_id: mem_id,
+          reg_id: account_app_id,
           mod_dt: null,
           mod_id: null
         })
@@ -124,7 +124,7 @@ export class MemberImgFileService {
 
   async updateMemberImgFile(updateMemberImgFileDto: UpdateMemberImgFileDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { member_img_id, mem_id } = updateMemberImgFileDto;
+      const { member_img_id, account_app_id } = updateMemberImgFileDto;
 
       const mod_dt = getCurrentDateYYYYMMDDHHIISS();
 
@@ -134,7 +134,7 @@ export class MemberImgFileService {
         .set({ 
           use_yn: 'N',
           mod_dt,
-          mod_id: mem_id || null
+          mod_id: account_app_id || null
         })
         .where('member_img_id = :member_img_id', { member_img_id })
         .execute();
@@ -155,7 +155,7 @@ export class MemberImgFileService {
 
   async deleteMemberImgFile(updateMemberImgFileDto: UpdateMemberImgFileDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { member_img_id, mem_id } = updateMemberImgFileDto;
+      const { member_img_id, account_app_id } = updateMemberImgFileDto;
 
       const mod_dt = getCurrentDateYYYYMMDDHHIISS();
 
@@ -165,7 +165,7 @@ export class MemberImgFileService {
         .set({ 
           del_yn: 'Y',
           mod_dt,
-          mod_id: mem_id || null
+          mod_id: account_app_id || null
         })
         .where('member_img_id = :member_img_id', { member_img_id })
         .execute();

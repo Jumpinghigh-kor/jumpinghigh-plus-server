@@ -6,7 +6,7 @@ export class MemberSchedule {
   sch_app_id: number;
 
   @Column()
-  mem_id: number;
+  account_app_id: number;
 
   @Column()
   original_sch_id: number;

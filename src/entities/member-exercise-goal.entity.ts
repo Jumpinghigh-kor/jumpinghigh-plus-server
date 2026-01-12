@@ -6,7 +6,7 @@ export class MemberExerciseGoal {
   goal_id: number;
 
   @Column()
-  mem_id: number;
+  account_app_id: number;
 
   @Column()
   goal_calory: number;

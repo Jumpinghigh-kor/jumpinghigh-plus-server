@@ -12,7 +12,7 @@ export class MemberPointAppService {
     private dataSource: DataSource,
   ) {}
 
-  async getMemberPointAppList(mem_id: string, reg_ym: string): Promise<{ success: boolean; data: any[] | null; code: string }> {
+  async getMemberPointAppList(account_app_id: string, reg_ym: string): Promise<{ success: boolean; data: any[] | null; code: string }> {
     try {
       const memberPointAppList = await this.dataSource
         .createQueryBuilder()
@@ -27,16 +27,16 @@ export class MemberPointAppService {
           , 'pda.option_gender'
           , 'moda.order_quantity'
         ])
-        .from('members', 'm')
-        .innerJoin('member_point_app', 'mpa', 'm.mem_id = mpa.mem_id')
+        .from('member_account_app', 'mca')
+        .innerJoin('member_point_app', 'mpa', 'mca.account_app_id = mpa.account_app_id')
         .leftJoin('member_order_detail_app', 'moda', 'mpa.order_detail_app_id = moda.order_detail_app_id')
         .leftJoin('product_detail_app', 'pda', 'moda.product_detail_app_id = pda.product_detail_app_id')
         .leftJoin('product_app', 'pa', 'pda.product_app_id = pa.product_app_id')
-        .where('m.mem_id = :memId')
+        .where('mca.account_app_id = :account_app_id')
         .andWhere('mpa.del_yn = "N"')
         .andWhere('DATE_FORMAT(STR_TO_DATE(mpa.reg_dt, "%Y%m%d%H%i%s"), "%Y%m") = :regYm')
         .orderBy('mpa.point_app_id', 'DESC')
-        .setParameters({memId: mem_id, regYm: reg_ym})
+        .setParameters({account_app_id: account_app_id, regYm: reg_ym})
         .getRawMany();
         
       if (!memberPointAppList || memberPointAppList.length === 0) {
@@ -67,7 +67,7 @@ export class MemberPointAppService {
 
   async insertMemberPointApp(insertMemberPointAppDto: InsertMemberPointAppDto): Promise<{ success: boolean; data: { point_app_id: number } | null; code: string }> {
     try {
-      const { order_detail_app_id, mem_id, point_status, point_amount } = insertMemberPointAppDto;
+      const { order_detail_app_id, account_app_id, point_status, point_amount } = insertMemberPointAppDto;
       const reg_dt = getCurrentDateYYYYMMDDHHIISS();
       
       const result = await this.dataSource
@@ -75,14 +75,14 @@ export class MemberPointAppService {
         .insert()
         .into('member_point_app')
         .values({
-          mem_id
+          account_app_id: account_app_id
           , order_detail_app_id: order_detail_app_id
           , point_type: 'BUY_PRODUCT'
           , point_status: point_status
           , point_amount: point_amount
           , del_yn: 'N'
           , reg_dt: reg_dt
-          , reg_id: mem_id
+          , reg_id: account_app_id
           , mod_dt: null
           , mod_id: null
         })

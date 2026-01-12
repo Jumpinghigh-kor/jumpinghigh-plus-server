@@ -15,14 +15,14 @@ export class MemberCartAppService {
 
   async getMemberCartAppList(getMemberCartAppListDto: GetMemberCartAppListDto): Promise<{ success: boolean; data: MemberCartAppListResponse[] | null; code: string }> {
     try {
-      const { mem_id } = getMemberCartAppListDto;
+      const { account_app_id } = getMemberCartAppListDto;
       
       // Using QueryBuilder for the cart list query
       const cartList = await this.dataSource
         .createQueryBuilder()
         .select([
           'mca.cart_app_id AS cart_app_id'
-          , 'mca.mem_id AS mem_id'
+          , 'mca.account_app_id AS account_app_id'
           , 'mca.product_detail_app_id AS product_detail_app_id'
           , 'mca.quantity AS quantity'
           , 'pa.product_app_id AS product_app_id'
@@ -49,7 +49,7 @@ export class MemberCartAppService {
         .from('member_cart_app', 'mca')
         .leftJoin('product_detail_app', 'pda', 'mca.product_detail_app_id = pda.product_detail_app_id')
         .leftJoin('product_app', 'pa', 'pda.product_app_id = pa.product_app_id')
-        .where('mca.mem_id = :mem_id', { mem_id })
+        .where('mca.account_app_id = :account_app_id', { account_app_id })
         .andWhere('mca.del_yn = :del_yn', { del_yn: 'N' })
         .getRawMany();
 
@@ -83,16 +83,16 @@ export class MemberCartAppService {
       const dataToInsert = Array.isArray(cartData) ? cartData : [cartData];
 
       for (const item of dataToInsert) {
-        const { mem_id, product_detail_app_id, quantity } = item;
+        const { account_app_id, product_detail_app_id, quantity } = item;
         
         const result = await this.dataSource.query(
           `SELECT
             COUNT(*) as count
           FROM  member_cart_app
-          WHERE mem_id = ?
+          WHERE account_app_id = ?
           AND   product_detail_app_id = ?
           AND   del_yn = 'N'`,
-          [mem_id, product_detail_app_id]
+          [account_app_id, product_detail_app_id]
         );
         
         if (result[0].count > 0) {
@@ -101,16 +101,16 @@ export class MemberCartAppService {
               quantity = ?
               , mod_dt = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
               , mod_id = ?
-            WHERE mem_id = ?
+            WHERE account_app_id = ?
             AND   product_detail_app_id = ?
             AND   del_yn = 'N'
             `,
-            [quantity, mem_id, mem_id, product_detail_app_id]
+            [quantity, account_app_id, account_app_id, product_detail_app_id]
           );
         } else {
           await this.dataSource.query(
             `INSERT INTO member_cart_app (
-              mem_id
+              account_app_id
               , product_detail_app_id
               , quantity
               , del_yn
@@ -128,7 +128,7 @@ export class MemberCartAppService {
               , null
               , null
             )`,
-            [mem_id, product_detail_app_id, quantity, mem_id]
+            [account_app_id, product_detail_app_id, quantity, account_app_id]
           );
         }
       }
@@ -155,16 +155,16 @@ export class MemberCartAppService {
       const dataToDelete = Array.isArray(data) ? data : [data];
       
       for (const item of dataToDelete) {
-        const { mem_id, cart_app_id } = item;
+        const { account_app_id, cart_app_id } = item;
         
         await this.dataSource.query(
           `UPDATE member_cart_app SET
             del_yn = 'Y'
             , mod_dt = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
             , mod_id = ?
-          WHERE mem_id = ?
+          WHERE account_app_id = ?
           AND   cart_app_id = ?`,
-          [mem_id, mem_id, cart_app_id]
+          [account_app_id, account_app_id, cart_app_id]
         );
       }
 
@@ -187,7 +187,7 @@ export class MemberCartAppService {
 
   async updateMemberCartApp(updateData: UpdateMemberCartAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { mem_id, cart_app_id, product_detail_app_id, quantity } = updateData;
+      const { account_app_id, cart_app_id, product_detail_app_id, quantity } = updateData;
       
       // Using QueryBuilder for update operation
       const result = await this.dataSource
@@ -197,9 +197,9 @@ export class MemberCartAppService {
           quantity: quantity,
           product_detail_app_id: product_detail_app_id,
           mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          mod_id: mem_id
+          mod_id: account_app_id
         })
-        .where("mem_id = :mem_id", { mem_id })
+        .where("account_app_id = :account_app_id", { account_app_id })
         .andWhere("cart_app_id = :cart_app_id", { cart_app_id })
         .execute();
 

@@ -15,10 +15,10 @@ export class MemberReturnAppService {
     private dataSource: DataSource,
   ) {}
 
-  async getMemberReturnAppList(mem_id: string, order_detail_app_id: number, type: string, search_content: string, year: string): Promise<{ success: boolean; data: any | null; code: string }> {
+  async getMemberReturnAppList(account_app_id: string, order_detail_app_id: number, type: string, search_content: string, year: string): Promise<{ success: boolean; data: any | null; code: string }> {
     try {
       const where: string[] = [];
-      const params: any = { mem_id };
+      const params: any = { account_app_id };
       if(order_detail_app_id) {
         where.push(`mra.order_detail_app_id = ${order_detail_app_id}`);
       } else {
@@ -91,13 +91,13 @@ export class MemberReturnAppService {
             ) AS return_order_address_id
           `
         ])
-        .from('members', 'm')
-        .leftJoin('member_order_app', 'moa', 'm.mem_id = moa.mem_id')
+        .from('member_account_app', 'mca')
+        .leftJoin('member_order_app', 'moa', 'mca.account_app_id = moa.account_app_id')
         .leftJoin('member_order_detail_app', 'moda', 'moa.order_app_id = moda.order_app_id')
         .leftJoin('product_detail_app', 'pda', 'moda.product_detail_app_id = pda.product_detail_app_id')
         .leftJoin('product_app', 'pa', 'pda.product_app_id = pa.product_app_id')
         .leftJoin('member_return_app', 'mra', 'moda.order_detail_app_id = mra.order_detail_app_id')
-        .where('m.mem_id = :mem_id', params)
+        .where('mca.account_app_id = :account_app_id', params)
         .andWhere('moda.order_status IN ("RETURN_COMPLETE", "EXCHANGE_COMPLETE", "CANCEL_COMPLETE")')
         .andWhere(where.join(' AND '), params)
         .getRawMany();
@@ -335,8 +335,8 @@ export class MemberReturnAppService {
             ) AS coupon_discount_type
           `
         ])
-        .from('members', 'm')
-        .leftJoin('member_order_app', 'moa', 'm.mem_id = moa.mem_id')
+        .from('member_account_app', 'mca')
+        .leftJoin('member_order_app', 'moa', 'mca.account_app_id = moa.account_app_id')
         .leftJoin('member_order_detail_app', 'moda', 'moa.order_app_id = moda.order_app_id')
         .leftJoin('product_detail_app', 'pda', 'moda.product_detail_app_id = pda.product_detail_app_id')
         .leftJoin('product_app', 'pa', 'pda.product_app_id = pa.product_app_id')
@@ -380,7 +380,7 @@ export class MemberReturnAppService {
         .values({
           order_detail_app_id: returnData.order_detail_app_id,
           order_address_id: returnData.order_address_id,
-          mem_id: returnData.mem_id,
+          account_app_id: returnData.account_app_id,
           return_applicator: 'CUSTOMER',
           return_reason_type: returnData.return_reason_type,
           reason: returnData.reason,
@@ -394,7 +394,7 @@ export class MemberReturnAppService {
           cancel_yn: 'N',
           del_yn: 'N',
           reg_dt: formattedDate,
-          reg_id: returnData.mem_id,
+          reg_id: returnData.account_app_id,
           mod_dt: null,
           mod_id: null
         })
@@ -418,7 +418,7 @@ export class MemberReturnAppService {
   }
 
   async updateMemberReturnApp(returnData: {
-    mem_id: string;
+    account_app_id: string;
     order_detail_app_ids: number[];
     return_reason_type: string;
     reason: string;
@@ -435,7 +435,7 @@ export class MemberReturnAppService {
           quantity: returnData.quantity,
           cancel_yn: returnData.cancel_yn,
           mod_dt: getCurrentDateYYYYMMDDHHIISS(),
-          mod_id: returnData.mem_id
+          mod_id: returnData.account_app_id
         })
         .where('order_detail_app_id IN (:...order_detail_app_ids)', { order_detail_app_ids: returnData.order_detail_app_ids })
         .execute();
@@ -460,14 +460,14 @@ export class MemberReturnAppService {
 
   async updateMemberReturnAppOrderAddressId(updateMemberReturnAppOrderAddressIdDto: UpdateMemberReturnAppOrderAddressIdDto): Promise<{ success: boolean; data: any | null; code: string }> {
     try {
-      const { order_detail_app_id, order_address_id, mem_id } = updateMemberReturnAppOrderAddressIdDto;
+      const { order_detail_app_id, order_address_id, account_app_id } = updateMemberReturnAppOrderAddressIdDto;
       const result = await this.dataSource
         .createQueryBuilder()
         .update('member_return_app')
         .set({
           order_address_id: order_address_id,
           mod_dt: getCurrentDateYYYYMMDDHHIISS(),
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where('order_detail_app_id = :order_detail_app_id', { order_detail_app_id: order_detail_app_id })
         .execute();
@@ -492,14 +492,14 @@ export class MemberReturnAppService {
 
   async updateMemberReturnAppCancelYn(updateMemberReturnAppCancelYnDto: UpdateMemberReturnAppCancelYnDto): Promise<{ success: boolean; data: any | null; code: string }> {
     try {
-      const { mem_id, order_detail_app_ids, cancel_yn } = updateMemberReturnAppCancelYnDto;
+      const { account_app_id, order_detail_app_ids, cancel_yn } = updateMemberReturnAppCancelYnDto;
       const result = await this.dataSource
         .createQueryBuilder()
         .update('member_return_app')
         .set({
           cancel_yn: cancel_yn,
           mod_dt: getCurrentDateYYYYMMDDHHIISS(),
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where('order_detail_app_id IN (:...order_detail_app_ids)', { order_detail_app_ids: order_detail_app_ids })
         .execute();
@@ -524,7 +524,7 @@ export class MemberReturnAppService {
 
   async updateMemberReturnAppApprovalYn(updateMemberReturnAppApprovalYnDto: UpdateMemberReturnAppApprovalYnDto): Promise<{ success: boolean; data: any | null; code: string }> {
     try {
-      const { mem_id, order_detail_app_ids, approval_yn } = updateMemberReturnAppApprovalYnDto;
+      const { account_app_id, order_detail_app_ids, approval_yn } = updateMemberReturnAppApprovalYnDto;
       
       const result = await this.dataSource
         .createQueryBuilder()
@@ -532,7 +532,7 @@ export class MemberReturnAppService {
         .set({
           approval_yn: approval_yn,
           mod_dt: getCurrentDateYYYYMMDDHHIISS(),
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where('order_detail_app_id IN (:...order_detail_app_ids)', { order_detail_app_ids: order_detail_app_ids })
         .execute();

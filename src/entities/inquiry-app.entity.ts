@@ -5,8 +5,8 @@ export class InquiryApp {
   @PrimaryGeneratedColumn()
   inquiry_app_id: number;
 
-  @Column({ name: 'mem_id' })
-  mem_id: number;
+  @Column({ name: 'account_app_id' })
+  account_app_id: number;
 
   @Column({ name: 'inquiry_type' })
   inquiry_type: string;

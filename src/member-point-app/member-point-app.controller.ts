@@ -12,7 +12,7 @@ export class MemberPointAppController {
 
   @Post('/getMemberPointAppList')
   getMemberPointAppList(@Body() getMemberPointAppListDto: GetMemberPointAppListDto) {
-    return this.memberPointAppService.getMemberPointAppList(getMemberPointAppListDto.mem_id, getMemberPointAppListDto.reg_ym);
+    return this.memberPointAppService.getMemberPointAppList(getMemberPointAppListDto.account_app_id, getMemberPointAppListDto.reg_ym);
   }
 
   @Post('/insertMemberPointApp')

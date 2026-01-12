@@ -16,7 +16,7 @@ export class InquiryAppService {
   async insertInquiryApp(insertInquiryAppDto: InsertInquiryAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
       const { 
-        mem_id,
+        account_app_id,
         inquiry_type,
         title,
         content
@@ -28,14 +28,14 @@ export class InquiryAppService {
         .insert()
         .into(InquiryApp)
         .values({
-          mem_id,
+          account_app_id,
           inquiry_type,
           title,
           content,
           answer: undefined,
           answer_dt: undefined,
           reg_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          reg_id: mem_id,
+          reg_id: account_app_id,
           mod_dt: undefined,
           mod_id: undefined,
           del_yn: 'N'
@@ -60,7 +60,7 @@ export class InquiryAppService {
   }
 
   async getInquiryAppList(getInquiryAppListDto: GetInquiryAppListDto): Promise<{ success: boolean; data: InquiryAppListResponse[] | null; code: string }> {
-    const { mem_id } = getInquiryAppListDto;
+    const { account_app_id } = getInquiryAppListDto;
 
     try {
       // 요청된 쿼리를 사용하여 데이터 조회
@@ -75,7 +75,7 @@ export class InquiryAppService {
         .addSelect('reg_dt', 'reg_dt')
         .from('inquiry_app', 'ia')
         .where('ia.del_yn = :del_yn', { del_yn: 'N' })
-        .andWhere('ia.mem_id = :mem_id', { mem_id: mem_id })
+        .andWhere('ia.account_app_id = :account_app_id', { account_app_id: account_app_id })
         .orderBy('inquiry_app_id', 'DESC')
         .getRawMany();
 
@@ -111,12 +111,11 @@ export class InquiryAppService {
         inquiry_type,
         title,
         content,
-        mem_id,
+        account_app_id,
         mod_id
       } = updateInquiryAppDto;
 
-      // mem_id가 있으면 mod_id로 사용
-      const finalModId = mem_id || mod_id;
+      const finalModId = account_app_id || mod_id;
 
       // 필드 값 설정
       const updateFields = {
@@ -173,7 +172,7 @@ export class InquiryAppService {
     try {
       const { 
         inquiry_app_id,
-        mem_id
+        account_app_id
       } = deleteInquiryAppDto;
 
       // Using QueryBuilder
@@ -183,7 +182,7 @@ export class InquiryAppService {
         .set({
           del_yn: 'Y',
           mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where("inquiry_app_id = :inquiry_app_id", { inquiry_app_id })
         .execute();

@@ -8,7 +8,7 @@ export class InsertMemberZzimAppDto {
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class UpdateMemberZzimAppDto {
@@ -22,19 +22,19 @@ export class UpdateMemberZzimAppDto {
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class GetMemberZzimAppListDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class GetMemberZzimAppDetailDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))

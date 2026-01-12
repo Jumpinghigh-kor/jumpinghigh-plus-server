@@ -4,14 +4,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { Member } from '../entities/member.entity';
+import { MemberAccountApp } from '../entities/member-account-app.entity';
 import { RefreshToken } from '../entities/refresh-token.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Member, RefreshToken]),
+    TypeOrmModule.forFeature([MemberAccountApp, RefreshToken]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],

@@ -9,7 +9,7 @@ export class SearchProductDto {
   @IsOptional()
   @IsNumber()
   @Transform(({ value }) => Number(value))
-  mem_id?: number;
+  account_app_id?: number;
 
   @IsOptional()
   @IsString()
@@ -19,7 +19,7 @@ export class SearchProductDto {
 export class GetMemberSearchAppListDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class DeleteMemberSearchAppDto {
@@ -29,7 +29,7 @@ export class DeleteMemberSearchAppDto {
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class InsertMemberSearchAppDto {
@@ -39,7 +39,7 @@ export class InsertMemberSearchAppDto {
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 }
 
 export interface MemberSearchResponse {

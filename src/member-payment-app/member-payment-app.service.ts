@@ -17,7 +17,7 @@ export class MemberPaymentAppService {
 
   async insertMemberPaymentApp(insertMemberPaymentAppDto: InsertMemberPaymentAppDto): Promise<{ success: boolean; data: { payment_app_id: number } | null; code: string }> {
     try {
-      const { order_app_id, mem_id, return_app_id, payment_status, payment_type, payment_method, payment_amount, portone_imp_uid, portone_merchant_uid, portone_status, card_name } = insertMemberPaymentAppDto;
+      const { order_app_id, account_app_id, return_app_id, payment_status, payment_type, payment_method, payment_amount, portone_imp_uid, portone_merchant_uid, portone_status, card_name } = insertMemberPaymentAppDto;
       
       const now_dt = getCurrentDateYYYYMMDDHHIISS();
       
@@ -27,7 +27,7 @@ export class MemberPaymentAppService {
         .into('member_payment_app')
         .values({
           order_app_id: order_app_id,
-          mem_id: mem_id,
+          account_app_id: account_app_id,
           return_app_id: return_app_id,
           payment_status: payment_status,
           payment_type: payment_type,
@@ -41,7 +41,7 @@ export class MemberPaymentAppService {
           portone_status: portone_status,
           card_name: card_name,
           reg_dt: now_dt,
-          reg_id: mem_id,
+          reg_id: account_app_id,
           mod_dt: null,
           mod_id: null
         })

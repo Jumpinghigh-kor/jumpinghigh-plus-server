@@ -17,7 +17,7 @@ export class CommonCodeController {
   async deleteCommonFile(
     @Body() deleteCommonFileDto: DeleteCommonFileDto
   ): Promise<{ success: boolean; message: string; code: string }> {
-    return this.commonCodeService.deleteCommonFile(deleteCommonFileDto.file_id, deleteCommonFileDto.mem_id);
+    return this.commonCodeService.deleteCommonFile(deleteCommonFileDto.file_id, deleteCommonFileDto.account_app_id);
   }
 
   @Post('getCommonCodeList')

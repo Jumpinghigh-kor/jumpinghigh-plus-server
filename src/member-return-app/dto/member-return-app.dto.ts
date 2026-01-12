@@ -15,7 +15,7 @@ export class MemberReturnAppDto {
 
   @IsString()
   @IsNotEmpty()
-  mem_id: number;
+  account_app_id: number;
 
   @IsString()
   @IsNotEmpty()
@@ -81,7 +81,7 @@ export class MemberReturnAppDto {
 export class GetMemberReturnAppDto {
   @IsString()
   @IsNotEmpty()
-  mem_id: string;
+  account_app_id: string;
 
   @IsNumber()
   @IsOptional()
@@ -117,7 +117,7 @@ export class InsertMemberReturnAppDto {
 
   @IsString()
   @IsNotEmpty()
-  mem_id: string;
+  account_app_id: string;
 
   @IsString()
   @IsOptional()
@@ -135,7 +135,7 @@ export class InsertMemberReturnAppDto {
 export class CancelMemberReturnAppDto {
   @IsString()
   @IsNotEmpty()
-  mem_id: string;
+  account_app_id: string;
 
   @IsArray()
   @IsNotEmpty()
@@ -145,7 +145,7 @@ export class CancelMemberReturnAppDto {
 export class UpdateMemberReturnAppDto {
   @IsString()
   @IsNotEmpty()
-  mem_id: string;
+  account_app_id: string;
 
   @IsArray()
   @IsNotEmpty()
@@ -179,13 +179,13 @@ export class UpdateMemberReturnAppOrderAddressIdDto {
 
   @IsString()
   @IsNotEmpty()
-  mem_id: string;
+  account_app_id: string;
 }
 
 export class UpdateMemberReturnAppCancelYnDto {
   @IsString()
   @IsNotEmpty()
-  mem_id: string;
+  account_app_id: string;
 
   @IsArray()
   @IsNotEmpty()
@@ -199,7 +199,7 @@ export class UpdateMemberReturnAppCancelYnDto {
 export class UpdateMemberReturnAppApprovalYnDto {
   @IsString()
   @IsNotEmpty()
-  mem_id: string;
+  account_app_id: string;
 
   @IsArray()
   @IsNotEmpty()

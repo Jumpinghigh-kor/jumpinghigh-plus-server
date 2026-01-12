@@ -4,7 +4,7 @@ import { Transform } from 'class-transformer';
 export class InsertMemberExerciseGoalDto {
   @IsNumber()
   @Transform(({ value }) => value ? parseInt(value) : undefined)
-  mem_id: number;
+  account_app_id: number;
 
   @IsString()
   goal_calory: string;
@@ -20,7 +20,7 @@ export class UpdateMemberExerciseGoalDto {
 
   @IsNumber()
   @Transform(({ value }) => value ? parseInt(value) : undefined)
-  mem_id: number;
+  account_app_id: number;
 
   @IsString()
   goal_calory: string;
@@ -29,7 +29,7 @@ export class UpdateMemberExerciseGoalDto {
 export class GetMemberExerciseGoalDto {
   @IsNumber()
   @Transform(({ value }) => value ? parseInt(value) : undefined)
-  mem_id: number;
+  account_app_id: number;
   
   @IsString()
   goal_period: string;

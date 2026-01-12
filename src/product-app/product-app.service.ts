@@ -14,7 +14,7 @@ export class ProductAppService {
 
   async getProductAppList(getProductAppListDto: GetProductAppListDto): Promise<{ success: boolean; data: ProductAppListResponse[] | null; code: string }> {
     try {
-      const { big_category, mem_id } = getProductAppListDto;
+      const { big_category, account_app_id } = getProductAppListDto;
       
       const queryBuilder = this.productAppRepository
         .createQueryBuilder('p')
@@ -52,7 +52,7 @@ export class ProductAppService {
                   smza.zzim_yn AS zzim_yn
                 FROM  member_zzim_app smza
                 WHERE smza.product_app_id = p.product_app_id
-                AND   smza.mem_id = ${mem_id}
+                AND   smza.account_app_id = ${account_app_id}
               ) AS zzim_yn
             `
         ])

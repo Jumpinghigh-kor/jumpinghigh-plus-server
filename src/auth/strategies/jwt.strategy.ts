@@ -15,16 +15,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    if (!payload || !payload.mem_id) {
+    if (!payload || !payload.account_app_id) {
       throw new UnauthorizedException('Invalid token payload');
     }
 
     return {
       mem_id: payload.mem_id,
-      mem_app_id: payload.mem_app_id,
+      account_app_id: payload.account_app_id,
+      login_id: payload.login_id,
       mem_name: payload.mem_name,
       center_id: payload.center_id,
-      mem_app_status: payload.mem_app_status
+      status: payload.status
     };
   }
 } 

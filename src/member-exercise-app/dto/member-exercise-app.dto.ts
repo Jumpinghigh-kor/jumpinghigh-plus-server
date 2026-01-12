@@ -4,7 +4,7 @@ import { Transform } from 'class-transformer';
 export class InsertMemberExerciseAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   exercise_dt: string;
@@ -50,7 +50,7 @@ export class UpdateMemberExerciseAppDto {
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsOptional()
   jumping_exercise_time?: string;
@@ -75,7 +75,7 @@ export class UpdateMemberExerciseAppDto {
 export class GetMemberExerciseAppInfoDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   exercise_dt: string;
@@ -84,7 +84,7 @@ export class GetMemberExerciseAppInfoDto {
 export class GetMemberExerciseAppListDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsOptional()
   year_month?: string;
@@ -95,7 +95,7 @@ export class GetMemberExerciseAppListDto {
 
 export interface MemberExerciseAppInfoResponse {
   exercise_app_id: number;
-  mem_id: number;
+  account_app_id: number;
   exercise_dt: string;
   jumping_exercise_time: string;
   jumping_intensity_level: string;
@@ -107,7 +107,7 @@ export interface MemberExerciseAppInfoResponse {
 
 export interface MemberExerciseAppListResponse {
   exercise_app_id: number;
-  mem_id: number;
+  account_app_id: number;
   exercise_dt: string;
   jumping_exercise_time: string;
   jumping_intensity_level: string;

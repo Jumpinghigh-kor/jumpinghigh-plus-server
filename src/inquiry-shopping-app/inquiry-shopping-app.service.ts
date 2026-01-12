@@ -16,7 +16,7 @@ export class InquiryShoppingAppService {
   async insertInquiryShoppingApp(insertInquiryAppDto: InsertInquiryShoppingAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
       const { 
-        mem_id,
+        account_app_id,
         product_app_id,
         content
       } = insertInquiryAppDto;
@@ -26,12 +26,12 @@ export class InquiryShoppingAppService {
         .insert()
         .into(InquiryShoppingApp)
         .values({
-          mem_id,
+          account_app_id,
           product_app_id,
           content,
           del_yn: 'N',
           reg_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          reg_id: mem_id,
+          reg_id: account_app_id,
           mod_dt: undefined,
           mod_id: undefined
         })

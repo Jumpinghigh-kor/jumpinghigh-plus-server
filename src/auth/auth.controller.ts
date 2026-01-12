@@ -9,11 +9,11 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() authDto: AuthDto) {
+  async login(@Body() payload: any) {
     try {
       const user = await this.authService.validateUser(
-        authDto.mem_app_id,
-        authDto.mem_app_password
+        payload.login_id,
+        payload.password
       );
       return this.authService.login(user);
     } catch (error) {

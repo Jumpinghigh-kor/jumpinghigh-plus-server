@@ -16,19 +16,19 @@ export class MemberCouponAppService {
 
   async insertMemberCouponApp(couponData: any): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { mem_id, coupon_app_id } = couponData;
+      const { account_app_id, coupon_app_id } = couponData;
 
       await this.dataSource
         .createQueryBuilder()
         .insert()
         .into('member_coupon_app')
         .values({
-          mem_id: mem_id,
+          account_app_id: account_app_id,
           coupon_app_id: coupon_app_id,
           use_yn:  'N',
           use_dt: null,
           reg_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          reg_id: mem_id,
+          reg_id: account_app_id,
           mod_dt: null,
           mod_id: null
         })
@@ -53,7 +53,7 @@ export class MemberCouponAppService {
 
   async getMemberCouponAppList(getMemberCouponAppListDto: any): Promise<{ success: boolean; data: MemberCouponAppListResponse[] | null; code: string }> {
     try {
-      const { mem_id, use_yn, date } = getMemberCouponAppListDto;
+      const { account_app_id, use_yn, date } = getMemberCouponAppListDto;
       
       let queryBuilder = this.dataSource
         .createQueryBuilder()
@@ -76,7 +76,7 @@ export class MemberCouponAppService {
         .from('member_coupon_app', 'mca')
         .leftJoin('coupon_app', 'ca', 'mca.coupon_app_id = ca.coupon_app_id')
         .where('ca.del_yn = :del_yn', { del_yn: 'N' })
-        .andWhere('mca.mem_id = :mem_id', { mem_id })
+        .andWhere('mca.account_app_id = :account_app_id', { account_app_id })
 
       if (use_yn !== undefined && use_yn !== null && use_yn !== '') {
         queryBuilder = queryBuilder.andWhere('mca.use_yn = :use_yn', { use_yn });
@@ -173,7 +173,7 @@ export class MemberCouponAppService {
 
   async updateMemberCouponApp(updateMemberCouponAppDto: UpdateMemberCouponAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { member_coupon_app_id, order_app_id, mem_id, use_yn} = updateMemberCouponAppDto;
+      const { member_coupon_app_id, order_app_id, account_app_id, use_yn} = updateMemberCouponAppDto;
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
       
@@ -186,7 +186,7 @@ export class MemberCouponAppService {
           use_yn: use_yn,
           use_dt: currentDate,
           mod_dt: currentDate,
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where('member_coupon_app_id = :member_coupon_app_id', { member_coupon_app_id })
         .execute();
@@ -216,5 +216,4 @@ export class MemberCouponAppService {
       );
     }
   }
-
 }

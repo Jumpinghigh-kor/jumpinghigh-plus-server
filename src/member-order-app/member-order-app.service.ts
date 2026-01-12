@@ -13,7 +13,7 @@ export class MemberOrderAppService {
     private dataSource: DataSource
   ) {}
 
-  async getMemberOrderAppList(mem_id: string, screen_type: string, year: string, search_title: string): Promise<{ success: boolean; data: any[] | null; code: string }> {
+  async getMemberOrderAppList(account_app_id: string, screen_type: string, year: string, search_title: string): Promise<{ success: boolean; data: any[] | null; code: string }> {
 
     try {
       const subQuery = this.dataSource.manager
@@ -56,7 +56,7 @@ export class MemberOrderAppService {
                     ELSE 'N'
                   END
                 FROM  member_review_app smra
-                WHERE smra.mem_id = moa.mem_id
+                WHERE smra.account_app_id = moa.account_app_id
                 AND   smra.product_app_id = pda.product_app_id
                 AND   smra.del_yn = 'N'
             ) AS review_yn`
@@ -180,13 +180,13 @@ export class MemberOrderAppService {
             ) AS delivery_fee_portone_merchant_uid
           `
         ])
-        .from('members', 'm')
-        .innerJoin('member_order_app', 'moa', 'm.mem_id = moa.mem_id')
+        .from('member_account_app', 'mca')
+        .innerJoin('member_order_app', 'moa', 'mca.account_app_id = moa.account_app_id')
         .leftJoin('member_order_detail_app', 'moda', 'moa.order_app_id = moda.order_app_id')
         .leftJoin('product_detail_app', 'pda', 'moda.product_detail_app_id = pda.product_detail_app_id')
         .leftJoin('product_app', 'pa', 'pda.product_app_id = pa.product_app_id')
         .leftJoin('member_return_app', 'mra', 'moda.order_detail_app_id = mra.order_detail_app_id AND mra.del_yn = "N" AND mra.cancel_yn = "N"')
-        .where('moa.mem_id = :mem_id', { mem_id })
+        .where('moa.account_app_id = :account_app_id', { account_app_id })
         .andWhere('moa.del_yn = :del_yn', { del_yn: 'N' })
         .orderBy('moa.order_dt', 'DESC');
 
@@ -240,7 +240,7 @@ export class MemberOrderAppService {
 
   async insertMemberOrderApp(insertMemberOrderAppDto: InsertMemberOrderAppDto): Promise<{ success: boolean; message: string; code: string; order_app_id: number | null }> {
     try {
-      const { mem_id } = insertMemberOrderAppDto;
+      const { account_app_id } = insertMemberOrderAppDto;
       
       const reg_dt = getCurrentDateYYYYMMDDHHIISS();
       
@@ -249,7 +249,7 @@ export class MemberOrderAppService {
         .insert()
         .into('member_order_app')
         .values({
-          mem_id: mem_id,
+          account_app_id: account_app_id,
           order_dt: reg_dt,
           order_memo: null,
           order_memo_dt: null,
@@ -257,7 +257,7 @@ export class MemberOrderAppService {
           memo_del_yn: null,
           del_yn: 'N',
           reg_dt: reg_dt,
-          reg_id: mem_id,
+          reg_id: account_app_id,
           mod_dt: null,
           mod_id: null
         })
@@ -289,7 +289,7 @@ export class MemberOrderAppService {
 
   async insertMemberOrderDetailApp(insertMemberOrderDetailAppDto: InsertMemberOrderDetailAppDto): Promise<{ success: boolean; message: string; code: string; order_detail_app_id: number | null }> {
     try {
-      const { mem_id, order_app_id, product_detail_app_id, order_status, order_quantity, order_group } =
+      const { account_app_id, order_app_id, product_detail_app_id, order_status, order_quantity, order_group } =
         insertMemberOrderDetailAppDto;
       
       const reg_dt = getCurrentDateYYYYMMDDHHIISS();
@@ -327,7 +327,7 @@ export class MemberOrderAppService {
           , shipping_complete_dt: shipping_complete_dt
           , purchase_confirm_dt: purchase_confirm_dt
           , reg_dt: reg_dt
-          , reg_id: mem_id
+          , reg_id: account_app_id
           , mod_dt: null
           , mod_id: null
         })
@@ -359,7 +359,7 @@ export class MemberOrderAppService {
 
   async updateMemberOrderDetailApp(updateData: UpdateMemberOrderDetailAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { mem_id, order_detail_app_ids, courier_code, tracking_number, goodsflow_id, purchase_confirm_dt } = updateData;
+      const { account_app_id, order_detail_app_ids, courier_code, tracking_number, goodsflow_id, purchase_confirm_dt } = updateData;
       
 
       const result = await this.dataSource
@@ -371,7 +371,7 @@ export class MemberOrderAppService {
           goodsflow_id: goodsflow_id,
           purchase_confirm_dt: purchase_confirm_dt,
           mod_dt: getCurrentDateYYYYMMDDHHIISS(),
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where("order_detail_app_id IN (:...order_detail_app_ids)", { order_detail_app_ids: order_detail_app_ids })
         .execute();
@@ -403,12 +403,12 @@ export class MemberOrderAppService {
 
   async updateOrderStatus(updateData: UpdateOrderStatusDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { mem_id, order_detail_app_ids, order_group, order_status } = updateData;
+      const { account_app_id, order_detail_app_ids, order_group, order_status } = updateData;
       
       const setPayload: any = {
         order_status: order_status,
         mod_dt: getCurrentDateYYYYMMDDHHIISS(),
-        mod_id: mem_id
+        mod_id: account_app_id
       };
 
       if (order_status == 'PURCHASE_CONFIRM') {
@@ -479,12 +479,12 @@ export class MemberOrderAppService {
 
   async updateOrderQuantity(updateData: UpdateOrderQuantityDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { mem_id, order_detail_app_id, order_quantity } = updateData;
+      const { account_app_id, order_detail_app_id, order_quantity } = updateData;
 
       const setPayload: any = {
         order_quantity: order_quantity,
         mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-        mod_id: mem_id
+        mod_id: account_app_id
       };
 
       const result = await this.dataSource

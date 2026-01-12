@@ -13,13 +13,13 @@ export class MemberShippingAddressService {
 
   async getMemberShippingAddressList(getMemberShippingAddressListDto: GetMemberShippingAddressListDto): Promise<{ success: boolean; data: any[] | null; code: string }> {
     try {
-      const { mem_id } = getMemberShippingAddressListDto;
+      const { account_app_id } = getMemberShippingAddressListDto;
       
       const addressList = await this.dataSource.manager
         .createQueryBuilder()
         .select([
           'shipping_address_id'
-          , 'mem_id'
+          , 'account_app_id'
           , 'shipping_address_name'
           , 'receiver_name'
           , `CONCAT(
@@ -40,7 +40,7 @@ export class MemberShippingAddressService {
           , 'reg_id'
         ])
         .from('member_shipping_address', 'msa')
-        .where('msa.mem_id = :mem_id', { mem_id })
+        .where('msa.account_app_id = :account_app_id', { account_app_id })
         .andWhere('msa.del_yn = :del_yn', { del_yn: 'N' })
         .orderBy('msa.default_yn', 'DESC')
         .addOrderBy('msa.shipping_address_id', 'DESC')
@@ -71,7 +71,7 @@ export class MemberShippingAddressService {
 
   async getTargetMemberShippingAddress(getMemberShippingAddressListDto: GetMemberShippingAddressListDto): Promise<{ success: boolean; data: any | null; code: string }> {
     try {
-      const { mem_id, shipping_address_id } = getMemberShippingAddressListDto;
+      const { account_app_id, shipping_address_id } = getMemberShippingAddressListDto;
 
       const checkSelectYn = await this.dataSource.manager
         .createQueryBuilder()
@@ -79,7 +79,7 @@ export class MemberShippingAddressService {
           'COUNT(*) as count'
         ])
         .from('member_shipping_address', 'msa')
-        .where('msa.mem_id = :mem_id', { mem_id })
+        .where('msa.account_app_id = :account_app_id', { account_app_id })
         .andWhere('msa.del_yn = :del_yn', { del_yn: 'N' })
         .andWhere('msa.select_yn = :select_yn', { select_yn: 'Y' })
         .getRawOne();
@@ -89,7 +89,7 @@ export class MemberShippingAddressService {
         .createQueryBuilder()
         .select([
           'shipping_address_id'
-          , 'mem_id'
+          , 'account_app_id'
           , 'shipping_address_name'
           , 'receiver_name'
           , `CONCAT(
@@ -110,7 +110,7 @@ export class MemberShippingAddressService {
           , 'reg_id'
         ])
         .from('member_shipping_address', 'msa')
-        .where('msa.mem_id = :mem_id', { mem_id })
+        .where('msa.account_app_id = :account_app_id', { account_app_id })
         .andWhere('msa.del_yn = :del_yn', { del_yn: 'N' })
         .andWhere('msa.default_yn = :default_yn', { default_yn: 'Y' });
         
@@ -129,7 +129,7 @@ export class MemberShippingAddressService {
           .createQueryBuilder()
           .select([
             'shipping_address_id'
-            , 'mem_id'
+            , 'account_app_id'
             , 'shipping_address_name'
             , 'receiver_name'
             , `CONCAT(
@@ -150,7 +150,7 @@ export class MemberShippingAddressService {
             , 'reg_id'
           ])
           .from('member_shipping_address', 'msa')
-          .where('msa.mem_id = :mem_id', { mem_id })
+          .where('msa.account_app_id = :account_app_id', { account_app_id })
           .andWhere('msa.del_yn = :del_yn', { del_yn: 'N' })
           .andWhere('msa.select_yn = :select_yn', { select_yn: 'Y' })
           .getRawOne();
@@ -182,7 +182,7 @@ export class MemberShippingAddressService {
   async insertMemberShippingAddress(insertMemberShippingAddressDto: InsertMemberShippingAddressDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
       const { 
-        mem_id,
+        account_app_id,
         shipping_address_name,
         receiver_name,
         receiver_phone,
@@ -207,9 +207,9 @@ export class MemberShippingAddressService {
             default_yn: 'N',
             select_yn: 'N',
             mod_dt: currentDate,
-            mod_id: mem_id
+            mod_id: account_app_id
           })
-          .where('mem_id = :mem_id', { mem_id })
+          .where('account_app_id = :account_app_id', { account_app_id })
           .andWhere('default_yn = :default_yn', { default_yn: 'Y' })
           .andWhere('del_yn = :del_yn', { del_yn: 'N' })
           .execute();
@@ -220,7 +220,7 @@ export class MemberShippingAddressService {
         .insert()
         .into('member_shipping_address')
         .values({
-          mem_id,
+          account_app_id,
           shipping_address_name,
           receiver_name,
           receiver_phone,
@@ -234,7 +234,7 @@ export class MemberShippingAddressService {
           enter_memo,
           delivery_request: null,
           reg_dt: currentDate,
-          reg_id: mem_id,
+          reg_id: account_app_id,
           mod_dt: null,
           mod_id: null
         })
@@ -259,7 +259,7 @@ export class MemberShippingAddressService {
     try {
       const { 
         shipping_address_id,
-        mem_id,
+        account_app_id,
         shipping_address_name,
         receiver_name,
         receiver_phone,
@@ -284,9 +284,9 @@ export class MemberShippingAddressService {
             default_yn: 'N',
             select_yn: 'N',
             mod_dt: currentDate,
-            mod_id: mem_id
+            mod_id: account_app_id
           })
-          .where('mem_id = :mem_id', { mem_id })
+          .where('account_app_id = :account_app_id', { account_app_id })
           .andWhere('default_yn = :default_yn', { default_yn: 'Y' })
           .andWhere('del_yn = :del_yn', { del_yn: 'N' })
           .execute();
@@ -295,7 +295,7 @@ export class MemberShippingAddressService {
       // 1. 기존 주소를 논리적 삭제 (del_yn = 'Y')
       const deleteResult = await this.deleteMemberShippingAddress({ 
         shipping_address_id, 
-        mem_id 
+        account_app_id 
       });
       
       if (!deleteResult.success) {
@@ -308,7 +308,7 @@ export class MemberShippingAddressService {
         .insert()
         .into('member_shipping_address')
         .values({
-          mem_id,
+          account_app_id,
           shipping_address_name,
           receiver_name,
           receiver_phone,
@@ -322,7 +322,7 @@ export class MemberShippingAddressService {
           enter_memo,
           delivery_request,
           reg_dt: currentDate,
-          reg_id: mem_id,
+          reg_id: account_app_id,
           mod_dt: null,
           mod_id: null
         })
@@ -345,7 +345,7 @@ export class MemberShippingAddressService {
 
   async deleteMemberShippingAddress(deleteMemberShippingAddressDto: DeleteMemberShippingAddressDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { shipping_address_id, mem_id } = deleteMemberShippingAddressDto;
+      const { shipping_address_id, account_app_id } = deleteMemberShippingAddressDto;
 
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
@@ -357,7 +357,7 @@ export class MemberShippingAddressService {
         .set({
           del_yn: 'Y',
           mod_dt: currentDate,
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where('shipping_address_id = :shipping_address_id', { shipping_address_id })
         .execute();
@@ -387,7 +387,7 @@ export class MemberShippingAddressService {
 
   async updateDeliveryRequest(updateDeliveryRequestDto: UpdateDeliveryRequestDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { shipping_address_id, mem_id, delivery_request } = updateDeliveryRequestDto;
+      const { shipping_address_id, account_app_id, delivery_request } = updateDeliveryRequestDto;
 
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
@@ -399,7 +399,7 @@ export class MemberShippingAddressService {
         .set({
           delivery_request,
           mod_dt: currentDate,
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where('shipping_address_id = :shipping_address_id', { shipping_address_id })
         .execute();
@@ -428,7 +428,7 @@ export class MemberShippingAddressService {
 
   async updateSelectYn(updateSelectYnDto: UpdateSelectYnDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { shipping_address_id, mem_id, select_yn } = updateSelectYnDto;
+      const { shipping_address_id, account_app_id, select_yn } = updateSelectYnDto;
 
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
@@ -440,9 +440,9 @@ export class MemberShippingAddressService {
         .set({
           select_yn: 'N',
           mod_dt: currentDate,
-          mod_id: mem_id
+          mod_id: account_app_id
         })
-        .where('mem_id = :mem_id', { mem_id })
+        .where('account_app_id = :account_app_id', { account_app_id })
         .andWhere('select_yn = :select_yn', { select_yn: 'Y' })
         .andWhere('del_yn = :del_yn', { del_yn: 'N' })
         .execute();
@@ -455,7 +455,7 @@ export class MemberShippingAddressService {
           .set({
             select_yn,
             mod_dt: currentDate,
-            mod_id: mem_id
+            mod_id: account_app_id
           })
           .where('shipping_address_id = :shipping_address_id', { shipping_address_id })
           .execute();

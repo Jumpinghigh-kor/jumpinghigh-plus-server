@@ -13,7 +13,7 @@ export class MemberZzimAppService {
 
   async insertMemberZzimApp(insertMemberZzimAppDto: InsertMemberZzimAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { product_app_id, mem_id } = insertMemberZzimAppDto;
+      const { product_app_id, account_app_id } = insertMemberZzimAppDto;
       
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const reg_dt = getCurrentDateYYYYMMDDHHIISS();
@@ -24,11 +24,11 @@ export class MemberZzimAppService {
         .insert()
         .into('member_zzim_app')
         .values({
-          mem_id: mem_id,
+          account_app_id: account_app_id,
           product_app_id: product_app_id,
           zzim_yn: 'Y',
           reg_dt: reg_dt,
-          reg_id: mem_id,
+          reg_id: account_app_id,
           mod_dt: null,
           mod_id: null
         })
@@ -54,7 +54,7 @@ export class MemberZzimAppService {
 
   async updateMemberZzimApp(updateMemberZzimAppDto: UpdateMemberZzimAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { zzim_app_id, mem_id, zzim_yn } = updateMemberZzimAppDto;
+      const { zzim_app_id, account_app_id, zzim_yn } = updateMemberZzimAppDto;
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const mod_dt = getCurrentDateYYYYMMDDHHIISS();
       
@@ -65,7 +65,7 @@ export class MemberZzimAppService {
         .set({
           zzim_yn: zzim_yn,
           mod_dt: mod_dt,
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where('zzim_app_id = :zzim_app_id', { zzim_app_id })
         .execute();
@@ -98,7 +98,7 @@ export class MemberZzimAppService {
 
   async getMemberZzimAppList(getMemberZzimAppListDto: GetMemberZzimAppListDto): Promise<{ success: boolean; data: any[] | null; code: string }> {
     try {
-      const { mem_id } = getMemberZzimAppListDto;
+      const { account_app_id } = getMemberZzimAppListDto;
       
       const zzimList = await this.dataSource.manager
         .createQueryBuilder()
@@ -111,12 +111,12 @@ export class MemberZzimAppService {
           , 'p.discount AS discount'
           , 'mza.zzim_app_id AS zzim_app_id'
           , 'mza.zzim_yn AS zzim_yn'
-          , 'mza.mem_id AS mem_id'
+          , 'mza.account_app_id AS account_app_id'
         ])
         .from('product_app', 'p')
         .leftJoin('member_zzim_app', 'mza', 'p.product_app_id = mza.product_app_id')
         .where('p.del_yn = :del_yn', { del_yn: 'N' })
-        .andWhere('mza.mem_id = :mem_id', { mem_id })
+        .andWhere('mza.account_app_id = :account_app_id', { account_app_id })
         .andWhere('mza.zzim_yn = :zzim_yn', { zzim_yn: 'Y' })
         .orderBy('mza.zzim_app_id', 'DESC')
         .getRawMany();
@@ -146,20 +146,20 @@ export class MemberZzimAppService {
 
   async getMemberZzimAppDetail(getMemberZzimAppDetailDto: GetMemberZzimAppDetailDto): Promise<{ success: boolean; data: any | null; code: string }> {
     try {
-      const { mem_id, product_app_id } = getMemberZzimAppDetailDto;
+      const { account_app_id, product_app_id } = getMemberZzimAppDetailDto;
       
       const zzipDetail = await this.dataSource.manager
         .createQueryBuilder()
         .select([
           'mza.zzim_app_id AS zzim_app_id',
-          'mza.mem_id AS mem_id',
+          'mza.account_app_id AS account_app_id',
           'mza.product_app_id AS product_app_id',
           'mza.zzim_yn AS zzim_yn',
           'mza.reg_dt AS reg_dt',
           'mza.mod_dt AS mod_dt'
         ])
         .from('member_zzim_app', 'mza')
-        .where('mza.mem_id = :mem_id', { mem_id })
+        .where('mza.account_app_id = :account_app_id', { account_app_id })
         .andWhere('mza.product_app_id = :product_app_id', { product_app_id })
         .orderBy('mza.mod_dt', 'DESC')
         .limit(1)

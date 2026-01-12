@@ -8,7 +8,7 @@ export class MemberCartApp {
   cart_app_id: number;
 
   @Column()
-  mem_id: number;
+  account_app_id: number;
 
   @Column()
   product_detail_app_id: number;
@@ -35,12 +35,12 @@ export class MemberCartApp {
 export class GetMemberCartAppListDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 } 
 
 export class MemberCartAppListResponse {
   cart_app_id: number;
-  mem_id: number;
+  account_app_id: number;
   product_detail_app_id: number;
   quantity: number;
   cart_yn: string;
@@ -49,7 +49,7 @@ export class MemberCartAppListResponse {
 export class DeleteMemberCartAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
@@ -59,7 +59,7 @@ export class DeleteMemberCartAppDto {
 export class UpdateMemberCartAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))

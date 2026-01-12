@@ -15,7 +15,7 @@ export class MemberScheduleAppController {
 
   @Post('getMemberScheduleAppList')
   getMemberScheduleAppList(@Body() getMemberScheduleAppDto: GetMemberScheduleAppDto) {
-    return this.memberScheduleAppService.getMemberScheduleAppList(getMemberScheduleAppDto.mem_id);
+    return this.memberScheduleAppService.getMemberScheduleAppList(getMemberScheduleAppDto.account_app_id);
   }
 
   @Post('insertMemberScheduleApp')

@@ -4,7 +4,7 @@ import { Transform } from 'class-transformer';
 export class GetMemberPaymentsDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsOptional()
   @Transform(({ value }) => String(value))
@@ -30,7 +30,7 @@ export class InsertMemberPaymentAppDto {
 
   @IsNumber()
   @IsNotEmpty()
-  mem_id: number;
+  account_app_id: number;
 
   @IsNumber()
   @IsOptional()

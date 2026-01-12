@@ -4,7 +4,7 @@ import { Transform } from 'class-transformer';
 export class GetMemberShippingAddressListDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsOptional()
   @Transform(({ value }) => Number(value))
@@ -14,7 +14,7 @@ export class GetMemberShippingAddressListDto {
 export class InsertMemberShippingAddressDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   @IsString()
@@ -70,7 +70,7 @@ export class UpdateMemberShippingAddressDto {
   shipping_address_id: number;
 
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsString()
   shipping_address_name: string;
@@ -122,7 +122,7 @@ export class DeleteMemberShippingAddressDto {
 
   @IsNumber()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class UpdateDeliveryRequestDto {
@@ -132,7 +132,7 @@ export class UpdateDeliveryRequestDto {
 
   @IsNumber()
   @Transform(({ value }) => value ? parseInt(value) : undefined)
-  mem_id: number;
+  account_app_id: number;
 
   @IsString()
   delivery_request: string;
@@ -146,7 +146,7 @@ export class UpdateSelectYnDto {
 
   @IsNumber()
   @Transform(({ value }) => value ? parseInt(value) : undefined)
-  mem_id: number;
+  account_app_id: number;
 
   @IsString()
   select_yn: string;

@@ -23,7 +23,7 @@ export class ReviewImageDto {
 
 export class InsertMemberReviewAppDto {
   @IsNumber()
-  mem_id: number;
+  account_app_id: number;
 
   @IsNumber()
   order_app_id: number;
@@ -70,7 +70,7 @@ export class UpdateMemberReviewAppDto {
   star_point: number;
 
   @IsNumber()
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class DeleteMemberReviewAppDto {
@@ -78,7 +78,7 @@ export class DeleteMemberReviewAppDto {
   review_app_id: number;
 
   @IsNumber()
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class GetMemberReviewAppImgDto {

@@ -4,7 +4,7 @@ import { Transform } from 'class-transformer';
 export class GetPostAppListDto {
   @IsNotEmpty()
   @IsNumber()
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   @IsString()
@@ -21,7 +21,7 @@ export interface PostAppListResponse {
 export class InsertMemberPostAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
@@ -31,7 +31,7 @@ export class InsertMemberPostAppDto {
 export class UpdateMemberPostAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
@@ -45,7 +45,7 @@ export class UpdateMemberPostAppDto {
 export class DeleteMemberPostAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsArray()
   @ArrayNotEmpty()

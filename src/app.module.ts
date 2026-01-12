@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { Member } from './entities/member.entity';
+import { MemberAccountApp } from './entities/member-account-app.entity';
 import { CheckinLog } from './entities/checkin-log.entity';
 import { MemberExerciseApp } from './entities/member-exercise-app.entity';
 import { Notice } from './entities/notice.entity';
@@ -73,7 +74,7 @@ import { DeliveryTrackerModule } from './delivery-tracker/delivery-tracker.modul
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_DATABASE || 'jumping',
-      entities: [Member, CheckinLog, MemberExerciseApp, Notice, NoticesApp, InquiryApp, InquiryShoppingApp, RefreshToken, BannerApp, ProductApp, MemberReviewApp, MemberSchedule, MemberCartApp, MemberOrderApp, MemberOrderAddress, PostApp, MemberPostApp, MemberPaymentApp],
+      entities: [Member, MemberAccountApp, CheckinLog, MemberExerciseApp, Notice, NoticesApp, InquiryApp, InquiryShoppingApp, RefreshToken, BannerApp, ProductApp, MemberReviewApp, MemberSchedule, MemberCartApp, MemberOrderApp, MemberOrderAddress, PostApp, MemberPostApp, MemberPaymentApp],
       synchronize: false, // 데이터 보존을 위해 false로 설정
     }),
     AuthModule,

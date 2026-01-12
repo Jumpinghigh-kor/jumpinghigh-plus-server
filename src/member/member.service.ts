@@ -16,34 +16,35 @@ export class MemberService {
 
   async getMemberInfo(getMemberInfoDto: GetMemberInfoDto): Promise<{ success: boolean; data: MemberInfoResponse | null; code: string }> {
     try {
-      const { mem_id } = getMemberInfoDto;
+      const { account_app_id } = getMemberInfoDto;
       
       // Using the provided SQL query
       const memberInfo = await this.memberRepository
         .createQueryBuilder('m')
         .select([
-          'mem_id'
-          , 'mem_name'
-          , 'mem_nickname'
-          , 'mem_phone'
-          , 'mem_birth'
-          , 'mem_gender'
-          , 'mem_checkin_number'
-          , 'mem_manager'
-          , 'mem_sch_id'
-          , 'mem_app_id'
-          , 'mem_role'
-          , 'mem_app_password'
-          , 'mem_app_status'
-          , 'center_id'
-          , 'push_yn'
-          , 'push_token'
+          'm.mem_id AS mem_id'
+          , 'm.mem_name AS mem_name'
+          , 'm.mem_phone AS mem_phone'
+          , 'm.mem_birth AS mem_birth'
+          , 'm.mem_gender AS mem_gender'
+          , 'm.mem_checkin_number AS mem_checkin_number'
+          , 'm.mem_manager AS mem_manager'
+          , 'm.mem_sch_id AS mem_sch_id'
+          , 'm.center_id AS center_id'
+          , 'maa.account_app_id AS account_app_id'
+          , 'maa.login_id AS login_id'
+          , 'maa.password AS password'
+          , 'maa.nickname AS nickname'
+          , 'maa.status AS status'
+          , 'maa.mem_role AS mem_role'
+          , 'maa.push_yn AS push_yn'
+          , 'maa.push_token AS push_token'
           , `
               (
                 SELECT
-                  center_name
-                FROM  centers
-                WHERE center_id = m.center_id
+                  sc.center_name
+                FROM  centers sc
+                WHERE sc.center_id = m.center_id
             ) AS center_name`
           , `
               (
@@ -64,7 +65,7 @@ export class MemberService {
                       END
                   ), 0)
                 FROM      member_point_app smpa
-                WHERE     smpa.mem_id = m.mem_id
+                WHERE     smpa.account_app_id = maa.account_app_id
                 AND       smpa.del_yn = 'N'
               ) AS total_point
             `
@@ -76,7 +77,7 @@ export class MemberService {
                 LEFT JOIN coupon_app sca ON smca.coupon_app_id = sca.coupon_app_id
                 WHERE     sca.del_yn = 'N'
                 AND       smca.use_yn = 'N'
-                AND       smca.mem_id = m.mem_id
+                AND       smca.account_app_id = maa.account_app_id
                 AND       DATE_FORMAT(NOW(), '%Y%m%d%H%i%s') <= sca.end_dt
               ) AS coupon_cnt
             `
@@ -85,12 +86,13 @@ export class MemberService {
                 SELECT
                   COUNT(*)
                 FROM      member_cart_app smca
-                WHERE     smca.mem_id = m.mem_id
+                WHERE     smca.account_app_id = maa.account_app_id
                 AND       smca.del_yn = 'N'
               ) AS cart_cnt
             `
         ])
-        .where('mem_id = :mem_id', { mem_id })
+        .leftJoin('member_account_app', 'maa', 'm.mem_id = maa.mem_id')
+        .where('maa.account_app_id = :account_app_id', { account_app_id })
         .getRawOne();
 
       if (!memberInfo) {
@@ -120,13 +122,14 @@ export class MemberService {
 
   async updateMemberAppPassword(updateMemberAppPasswordDto: UpdateMemberAppPasswordDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { mem_id, current_password, mem_app_password } = updateMemberAppPasswordDto;
+      const { account_app_id, current_password, password } = updateMemberAppPasswordDto;
       
       // 현재 비밀번호 확인을 위해 사용자 정보 조회
-      const member = await this.memberRepository
+      const member = await this.dataSource
         .createQueryBuilder()
-        .select(['mem_id', 'mem_app_password'])
-        .where('mem_id = :mem_id', { mem_id })
+        .select(['account_app_id', 'password'])
+        .from('member_account_app', 'maa')
+        .where('account_app_id = :account_app_id', { account_app_id })
         .getRawOne();
       
       if (!member) {
@@ -138,7 +141,7 @@ export class MemberService {
       }
       
       // 현재 비밀번호 검증
-      const isPasswordValid = await bcrypt.compare(current_password, member.mem_app_password);
+      const isPasswordValid = await bcrypt.compare(current_password, member.password);
       
       if (!isPasswordValid) {
         return {
@@ -150,18 +153,18 @@ export class MemberService {
       
       // 새 비밀번호 암호화
       const salt = await bcrypt.genSalt();
-      const hashedPassword = await bcrypt.hash(mem_app_password, salt);
+      const hashedPassword = await bcrypt.hash(password, salt);
       
       // Using QueryBuilder for the update
-      const result = await this.memberRepository
+      const result = await this.dataSource
         .createQueryBuilder()
-        .update(Member)
+        .update('member_account_app')
         .set({
-          mem_app_password: hashedPassword,
-          app_mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          app_mod_id: mem_id
+          password: hashedPassword,
+          mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          mod_id: account_app_id
         })
-        .where("mem_id = :mem_id", { mem_id })
+        .where("account_app_id = :account_app_id", { account_app_id })
         .execute();
       
       if (result.affected === 0) {
@@ -189,14 +192,14 @@ export class MemberService {
     }
   }
 
-  async checkNicknameDuplicate(mem_nickname: string): Promise<{ success: boolean; message: string; code: string }> {
+  async checkNicknameDuplicate(nickname: string): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      // 테이블과 별칭을 일관되게 사용
-      const existingMember = await this.memberRepository
+      const existingMember = await this.dataSource
         .createQueryBuilder()
-        .select('mem_id')
-        .where('mem_nickname = :mem_nickname', { mem_nickname })
-        .andWhere('mem_app_status = :status', { status: 'ACTIVE' })
+        .select('account_app_id')
+        .from('member_account_app', 'maa')
+        .where('maa.nickname = :nickname', { nickname })
+        .andWhere('maa.status = :status', { status: 'ACTIVE' })
         .getRawOne();
 
       if (existingMember) {
@@ -225,22 +228,22 @@ export class MemberService {
     }
   }
 
-  async completeSignup(data: { mem_id: number, mem_nickname: string }): Promise<{ success: boolean; message: string; code: string }> {
+  async completeSignup(data: { account_app_id: number, nickname: string }): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { mem_id, mem_nickname } = data;
+      const { account_app_id, nickname } = data;
       
       // Update member record
       const result = await this.memberRepository
         .createQueryBuilder()
-        .update('members')
+        .update('member_account_app')
         .set({
-          mem_nickname,
-          mem_app_status: 'ACTIVE',
-          app_active_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          app_mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          app_mod_id: mem_id
+          nickname,
+          status: 'ACTIVE',
+          active_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          mod_id: account_app_id
         })
-        .where("mem_id = :mem_id", { mem_id })
+        .where("account_app_id = :account_app_id", { account_app_id })
         .execute();
         
       if (result.affected === 0) {
@@ -270,11 +273,11 @@ export class MemberService {
   }
 
   async findId(mem_name: string, mem_phone: string): Promise<{ success: boolean; message: string; code: string; data: any}> {
-
     try {
       const existingMember = await this.memberRepository
         .createQueryBuilder()
-        .select(['mem_app_id', 'DATE_FORMAT(app_reg_dt, "%Y.%m.%d") AS app_reg_dt'])
+        .select(['maa.login_id', 'DATE_FORMAT(maa.reg_dt, "%Y.%m.%d") AS reg_dt'])
+        .leftJoin('member_account_app', 'maa', 'm.mem_id = maa.mem_id')
         .where('mem_name = :mem_name', { mem_name })
         .andWhere('mem_phone = :mem_phone', { mem_phone })
         .getRawOne();
@@ -307,16 +310,17 @@ export class MemberService {
     }
   }
 
-  async findPassword(findPasswordDto: FindPasswordDto): Promise<{ success: boolean; message: string; code: string; data?: { mem_id: number, temporary_password?: string } }> {
+  async findPassword(findPasswordDto: FindPasswordDto): Promise<{ success: boolean; message: string; code: string; data?: { account_app_id: number, temporary_password?: string } }> {
     try {
-      const {  mem_app_id, mem_name, mem_phone } = findPasswordDto;
+      const {  login_id, mem_name, mem_phone } = findPasswordDto;
       
       const member = await this.memberRepository
         .createQueryBuilder()
-        .select('mem_id')
+        .select('account_app_id')
+        .leftJoin('member_account_app', 'maa', 'm.mem_id = maa.mem_id')
         .where('mem_name = :mem_name', { mem_name })
         .andWhere('mem_phone = :mem_phone', { mem_phone })
-        .andWhere('mem_app_id = :mem_app_id', { mem_app_id })
+        .andWhere('maa.login_id = :login_id', { login_id })
         .getRawOne();
 
       if (!member) {
@@ -353,13 +357,13 @@ export class MemberService {
       // Update member's password with the temporary one
       const result = await this.memberRepository
         .createQueryBuilder()
-        .update(Member)
+        .update('member_account_app')
         .set({
-          mem_app_password: hashedPassword,
-          app_mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          app_mod_id: member.mem_id
+          password: hashedPassword,
+          mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          mod_id: member.account_app_id
         })
-        .where("mem_id = :mem_id", { mem_id: member.mem_id })
+        .where("account_app_id = :account_app_id", { account_app_id: member.account_app_id })
         .execute();
       
       if (result.affected === 0) {
@@ -377,8 +381,7 @@ export class MemberService {
         message: '임시 비밀번호가 생성되었습니다.',
         code: COMMON_RESPONSE_CODES.SUCCESS,
         data: {
-          mem_id: member.mem_id,
-          // In production, you would remove this and send via secure channel
+          account_app_id: member.account_app_id,
           temporary_password: tempPassword
         }
       };
@@ -395,7 +398,7 @@ export class MemberService {
     }
   }
 
-  async updateMemberWithdrawal(mem_id: number): Promise<{ success: boolean; message: string; code: string }> {
+  async updateMemberWithdrawal(account_app_id: number): Promise<{ success: boolean; message: string; code: string }> {
     try {
 
       const orderCount = await this.dataSource
@@ -403,8 +406,8 @@ export class MemberService {
         .select('COUNT(*) AS order_count')
         .from('member_order_app', 'moa')
         .leftJoin('member_order_detail_app', 'moda', 'moa.order_app_id = moda.order_app_id')
-        .where('moa.mem_id = :mem_id', { mem_id })
-        .andWhere('moda.order_status NOT IN ("PURCHASE_CONFIRM", "RETURN_COMPLETE", "EXCHANGE_COMPLETE")')
+        .where('moa.account_app_id = :account_app_id', { account_app_id })
+        .andWhere('moda.order_status NOT IN ("PURCHASE_CONFIRM", "RETURN_COMPLETE", "EXCHANGE_COMPLETE","CANCEL_COMPLETE")')
         .getRawOne();
 
       if (orderCount?.order_count > 0) {
@@ -420,7 +423,7 @@ export class MemberService {
         .select('COUNT(*) AS reservation_count')
         .from('schedule', 's')
         .innerJoin('member_schedule_app', 'msa', 's.sch_id = msa.reservation_sch_id')
-        .where('msa.mem_id = :mem_id', { mem_id })
+        .where('msa.account_app_id = :account_app_id', { account_app_id })
         .andWhere('msa.agree_yn = "Y"')
         .andWhere('msa.del_yn = "N"')
         .andWhere('DATE_FORMAT(NOW(), "%Y%m%d%H%i%s") <=  CONCAT(sch_dt, DATE_FORMAT(STR_TO_DATE(sch_time, "%h:%i %p"), "%H%i"), "00")')
@@ -436,14 +439,15 @@ export class MemberService {
 
       const result = await this.memberRepository
         .createQueryBuilder()
-        .update('members')
+        .update('member_account_app')
         .set({
-          mem_app_status: 'EXIT',
-          app_exit_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          app_mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          app_mod_id: mem_id
+          status: 'EXIT',
+          del_yn: 'Y',
+          exit_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          mod_id: account_app_id
         })
-        .where("mem_id = :mem_id", { mem_id })
+        .where("account_app_id = :account_app_id", { account_app_id })
         .execute();
       
       if (result.affected === 0) {
@@ -472,17 +476,17 @@ export class MemberService {
     }
   }
 
-  async updatePushToken(mem_id: number, push_token: string): Promise<{ success: boolean; message: string; code: string }> {
+  async updatePushToken(account_app_id: number, push_token: string): Promise<{ success: boolean; message: string; code: string }> {
     try {
       const result = await this.memberRepository
         .createQueryBuilder()
-        .update('members')
+        .update('member_account_app')
         .set({
           push_token: push_token,
-          app_mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          app_mod_id: mem_id
+          mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          mod_id: account_app_id
         })
-        .where("mem_id = :mem_id", { mem_id })
+        .where("account_app_id = :account_app_id", { account_app_id })
         .execute();
       
       if (result.affected === 0) {
@@ -511,17 +515,17 @@ export class MemberService {
     }
   }
 
-  async updatePushYn(mem_id: number, push_yn: string): Promise<{ success: boolean; message: string; code: string }> {
+  async updatePushYn(account_app_id: number, push_yn: string): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const result = await this.memberRepository
+      const result = await this.dataSource
         .createQueryBuilder()
-        .update('members')
+        .update('member_account_app')
         .set({
           push_yn,
-          app_mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          app_mod_id: mem_id
+          mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          mod_id: account_app_id
         })
-        .where("mem_id = :mem_id", { mem_id })
+        .where("account_app_id = :account_app_id", { account_app_id })
         .execute();
       
       if (result.affected === 0) {
@@ -550,18 +554,18 @@ export class MemberService {
     }
   }
 
-  async updateRecentDt(mem_id: number): Promise<{ success: boolean; message: string; code: string }> {
+  async updateRecentDt(account_app_id: number): Promise<{ success: boolean; message: string; code: string }> {
     try {
 
-      const result = await this.memberRepository
+      const result = await this.dataSource
         .createQueryBuilder()
-        .update('members')
+        .update('member_account_app')
         .set({
           recent_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          app_mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          app_mod_id: mem_id
+          mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          mod_id: account_app_id
         })
-        .where("mem_id = :mem_id", { mem_id })
+        .where("account_app_id = :account_app_id", { account_app_id })
         .execute();
 
       if (result.affected === 0) {
@@ -590,19 +594,18 @@ export class MemberService {
     }
   }
 
-  async updateChangeNickname(mem_id: number, mem_nickname: string): Promise<{ success: boolean; message: string; code: string }> {
+  async updateChangeNickname(account_app_id: number, nickname: string): Promise<{ success: boolean; message: string; code: string }> {
     try {
-
-      const result = await this.memberRepository
+      const result = await this.dataSource
         .createQueryBuilder()
-        .update('members')
+        .update('member_account_app')
         .set({
-          mem_nickname: mem_nickname,
+          nickname: nickname,
           recent_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          app_mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
-          app_mod_id: mem_id
+          mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          mod_id: account_app_id
         })
-        .where("mem_id = :mem_id", { mem_id })
+        .where("account_app_id = :account_app_id", { account_app_id })
         .execute();
 
       if (result.affected === 0) {

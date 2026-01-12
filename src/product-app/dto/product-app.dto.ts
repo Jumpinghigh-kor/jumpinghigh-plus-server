@@ -9,7 +9,7 @@ export class GetProductAppListDto {
   @IsOptional()
   @IsNumber()
   @Transform(({ value }) => value ? parseInt(value) : undefined)
-  mem_id?: number;
+  account_app_id?: number;
 }
 
 export interface ProductAppListResponse {

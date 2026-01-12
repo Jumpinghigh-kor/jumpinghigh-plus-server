@@ -16,7 +16,7 @@ export class MemberExerciseGoalService {
 
   async insertMemberExerciseGoal(insertMemberExerciseGoalDto: InsertMemberExerciseGoalDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { mem_id, goal_calory, goal_period } = insertMemberExerciseGoalDto;
+      const { account_app_id, goal_calory, goal_period } = insertMemberExerciseGoalDto;
       
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
@@ -27,13 +27,13 @@ export class MemberExerciseGoalService {
         .insert()
         .into('member_exercise_goal')
         .values({
-          mem_id: mem_id,
+          account_app_id: account_app_id,
           goal_calory: goal_calory,
           goal_period: goal_period,
           reg_dt: currentDate,
-          reg_id: mem_id,
+          reg_id: account_app_id,
           mod_dt: currentDate,
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .execute();
       
@@ -57,7 +57,7 @@ export class MemberExerciseGoalService {
 
   async updateMemberExerciseGoal(updateMemberExerciseGoalDto: UpdateMemberExerciseGoalDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { exercise_goal_id, mem_id, goal_calory } = updateMemberExerciseGoalDto;
+      const { exercise_goal_id, account_app_id, goal_calory } = updateMemberExerciseGoalDto;
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
       
@@ -68,7 +68,7 @@ export class MemberExerciseGoalService {
         .set({
           goal_calory: goal_calory,
           mod_dt: currentDate,
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where('exercise_goal_id = :exercise_goal_id', { exercise_goal_id })
         .execute();
@@ -101,14 +101,14 @@ export class MemberExerciseGoalService {
 
   async getMemberExerciseGoal(getMemberExerciseGoalDto: GetMemberExerciseGoalDto): Promise<{ success: boolean; data: MemberExerciseGoalResponse | null; code: string }> {
     try {
-      const { mem_id, goal_period } = getMemberExerciseGoalDto;
+      const { account_app_id, goal_period } = getMemberExerciseGoalDto;
 
       // TypeORM QueryBuilder 사용하여 데이터 조회
       const goal = await this.dataSource
         .createQueryBuilder()
         .select(['goal_calory', 'exercise_goal_id'])
         .from('member_exercise_goal', 'meg')
-        .where('mem_id = :mem_id', { mem_id })
+        .where('account_app_id = :account_app_id', { account_app_id })
         .andWhere('goal_period = :goal_period', { goal_period })
         .getRawOne();
       

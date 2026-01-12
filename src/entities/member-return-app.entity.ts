@@ -12,7 +12,7 @@ export class MemberReturnApp {
   order_address_id: number;
 
   @Column()
-  mem_id: number;
+  account_app_id: number;
 
   @Column()
   return_applicator: string;

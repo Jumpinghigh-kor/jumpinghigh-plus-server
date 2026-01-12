@@ -10,10 +10,10 @@ export class MemberOrderAddressController {
 
   @Post('getMemberOrderAddressList')
   async getMemberOrderAddressList(
-    @Body('mem_id') mem_id: string
+    @Body('account_app_id') account_app_id: string
   ): Promise<{ success: boolean; data: any[] | null; code: string }> {
     try {
-      return this.memberOrderAddressService.getMemberOrderAddressList(mem_id);
+      return this.memberOrderAddressService.getMemberOrderAddressList(account_app_id);
     } catch (error) {
       throw error;
     }
@@ -33,10 +33,10 @@ export class MemberOrderAddressController {
   @Post('insertMemberOrderAddress')
   async insertMemberOrderAddress(
     @Body() insertMemberOrderAddressDto: InsertMemberOrderAddressDto,
-    @Body('mem_id') mem_id: number
+    @Body('account_app_id') account_app_id: number
   ): Promise<{ success: boolean; data: { order_address_id: number } | null; code: string }> {
     try {
-      return this.memberOrderAddressService.insertMemberOrderAddress(insertMemberOrderAddressDto, mem_id);
+      return this.memberOrderAddressService.insertMemberOrderAddress(insertMemberOrderAddressDto, account_app_id);
     } catch (error) {
       throw error;
     }

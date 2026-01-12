@@ -4,13 +4,13 @@ import { Transform } from 'class-transformer';
 export class GetMemberInfoDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class UpdateMemberAppPasswordDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   @IsString()
@@ -18,7 +18,7 @@ export class UpdateMemberAppPasswordDto {
 
   @IsNotEmpty()
   @IsString()
-  mem_app_password: string;
+  password: string;
 }
 
 export class FindPasswordDto {
@@ -32,13 +32,13 @@ export class FindPasswordDto {
 
   @IsNotEmpty()
   @IsString()
-  mem_app_id: string;
+  login_id: string;
 }
 
 export class UpdatePushTokenDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   @IsString()
@@ -48,7 +48,7 @@ export class UpdatePushTokenDto {
 export class UpdatePushYnDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   @IsString()
@@ -64,8 +64,11 @@ export interface MemberInfoResponse {
   mem_checkin_number: string;
   mem_manager: string;
   mem_sch_id: number;
-  mem_app_id: string;
-  mem_app_status: number;
+  account_app_id: number;
+  login_id: string;
+  password: string;
+  nickname: string;
+  status: number;
   center_id: number;
   total_point: number;
   coupon_cnt: number;

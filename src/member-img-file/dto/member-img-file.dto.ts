@@ -3,19 +3,19 @@ import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 export class SelectMemberImgFileDto {
   @IsNotEmpty()
   @IsNumber()
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class MemberImgFileCntDto {
   @IsNotEmpty()
   @IsNumber()
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class InsertMemberImgFileDto {
   @IsNotEmpty()
   @IsNumber()
-  mem_id: number;
+  account_app_id: number;
 
   @IsNotEmpty()
   @IsNumber()
@@ -51,7 +51,7 @@ export class UpdateMemberImgFileDto {
 
   @IsOptional()
   @IsNumber()
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class DeleteMemberImgFileDto {
@@ -61,7 +61,7 @@ export class DeleteMemberImgFileDto {
 
   @IsOptional()
   @IsNumber()
-  mem_id: number;
+  account_app_id: number;
 }
 
 export class MemberImgFileDto {} 

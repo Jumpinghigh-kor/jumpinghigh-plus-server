@@ -6,7 +6,7 @@ export class MemberOrderApp {
   order_app_id: number;
 
   @Column()
-  mem_id: number;
+  account_app_id: number;
 
   @Column({ length: 14 })
   order_dt: string;

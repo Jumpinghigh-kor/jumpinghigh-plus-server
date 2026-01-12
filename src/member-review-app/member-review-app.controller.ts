@@ -1,4 +1,4 @@
-import { Controller, UseGuards, Post, Body } from '@nestjs/common';
+import { Controller, UseGuards, Post, Body, Request } from '@nestjs/common';
 import { MemberReviewAppService } from './member-review-app.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GetMemberReviewAppListDto, UpdateMemberReviewAppDto, DeleteMemberReviewAppDto, ReviewImageDto, GetMemberReviewAppImgDto } from './dto/member-review-app.dto';
@@ -17,25 +17,42 @@ export class MemberReviewAppController {
 
   @Post('getCompleteMemberReviewAppList')
   async getCompleteMemberReviewAppList(
-    @Body('mem_id') mem_id: string
+    @Body('account_app_id') account_app_id: string
   ): Promise<{ success: boolean; data: any[] | null; code: string }> {
-    return this.memberReviewAppService.getCompleteMemberReviewAppList(mem_id);
+    return this.memberReviewAppService.getCompleteMemberReviewAppList(account_app_id);
   }
 
   @Post('insertMemberReviewApp')
   async insertMemberReviewApp(
+    @Request() req: any,
     @Body() reviewData: {
-      mem_id: number;
       order_app_id: number;
       product_app_id: number;
       title: string;
       content: string;
       star_point: number;
-      reg_id: number;
+      account_app_id?: number;
+      reg_id?: number;
       images?: ReviewImageDto[];
+      file_ids?: number[];
+      order_seq?: number;
     }
   ): Promise<{ success: boolean; data: any | null; code: string }> {
-    return this.memberReviewAppService.insertMemberReviewApp(reviewData);
+    const account_app_id =
+      reviewData?.reg_id ??
+      req?.user?.account_app_id ??
+      req?.user?.login_id;
+
+    return this.memberReviewAppService.insertMemberReviewApp({
+      account_app_id,
+      order_app_id: reviewData.order_app_id,
+      product_app_id: reviewData.product_app_id,
+      title: reviewData.title,
+      content: reviewData.content,
+      star_point: reviewData.star_point,
+      file_ids: reviewData.file_ids,
+      order_seq: reviewData.order_seq,
+    });
   }
 
   @Post('updateMemberReviewApp')

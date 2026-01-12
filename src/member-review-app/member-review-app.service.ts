@@ -22,10 +22,10 @@ export class MemberReviewAppService {
       const queryBuilder = this.memberReviewAppRepository
       .createQueryBuilder('mra')
       .select([
-        'm.mem_nickname AS mem_nickname'
-          , 'm.mem_app_status AS mem_app_status'
+          'maa.nickname AS nickname'
+          , 'maa.status AS status'
           , 'mra.review_app_id AS review_app_id'
-          , 'mra.mem_id AS mem_id'
+          , 'mra.account_app_id AS account_app_id'
           , 'mra.order_app_id AS order_app_id'
           , 'mra.product_app_id AS product_app_id'
           , 'mra.title AS title'
@@ -55,9 +55,10 @@ export class MemberReviewAppService {
               ) AS review_img_count
             `
         ])
-        .innerJoin('members', 'm', 'mra.mem_id = m.mem_id')
+        .innerJoin('member_account_app', 'maa', 'mra.account_app_id = maa.account_app_id')
         .leftJoin('product_app', 'pa', 'mra.product_app_id = pa.product_app_id')
         .where('mra.del_yn = :del_yn', { del_yn: 'N' })
+        .andWhere('maa.del_yn = :del_yn', { del_yn: 'N' })
        
       if (review_img_yn === 'Y') {
         queryBuilder.having('review_img_count > 0');
@@ -103,12 +104,14 @@ export class MemberReviewAppService {
   }
 
   // 리뷰 쓰기 목록 조회
-  async getCompleteMemberReviewAppList(mem_id: string): Promise<{ success: boolean; data: any[] | null; code: string }> {
+  async getCompleteMemberReviewAppList(account_app_id: string): Promise<{ success: boolean; data: any[] | null; code: string }> {
     try {
       const queryBuilder = this.memberReviewAppRepository
         .createQueryBuilder('mra')
         .select([
           'mra.review_app_id AS review_app_id'
+          , 'mra.account_app_id AS account_app_id'
+          , 'maa.nickname AS nickname'
           , 'mra.product_app_id AS product_app_id'
           , 'mra.content AS content'
           , 'mra.title AS review_title'
@@ -153,9 +156,10 @@ export class MemberReviewAppService {
               ) AS order_quantity
             `
         ])
-        .leftJoin('members', 'm', 'mra.mem_id = m.mem_id')
+        .leftJoin('member_account_app', 'maa', 'mra.account_app_id = maa.account_app_id')
         .leftJoin('product_app', 'pa', 'mra.product_app_id = pa.product_app_id')
-        .where('mra.mem_id = :mem_id', { mem_id })
+        .where('mra.account_app_id = :account_app_id', { account_app_id })
+        .andWhere('maa.del_yn = :del_yn', { del_yn: 'N' })
         .andWhere('mra.del_yn = :del_yn', { del_yn: 'N' });
       
       const memberReviewAppList = await queryBuilder.getRawMany();
@@ -187,7 +191,7 @@ export class MemberReviewAppService {
   }
 
   async insertMemberReviewApp(reviewData: {
-    mem_id: number;
+    account_app_id: number;
     order_app_id: number;
     product_app_id: number;
     title: string;
@@ -208,7 +212,7 @@ export class MemberReviewAppService {
         .insert()
         .into('member_review_app')
         .values({
-          mem_id: reviewData.mem_id,
+          account_app_id: reviewData.account_app_id,
           order_app_id: reviewData.order_app_id,
           product_app_id: reviewData.product_app_id,
           title: reviewData.title,
@@ -217,7 +221,7 @@ export class MemberReviewAppService {
           del_yn: 'N',
           admin_del_yn: 'N',
           reg_dt: formattedDate,
-          reg_id: reviewData.mem_id,
+          reg_id: reviewData.account_app_id,
           mod_dt: null,
           mod_id: null
         })
@@ -240,7 +244,7 @@ export class MemberReviewAppService {
               order_seq: orderSeq,
               del_yn: 'N',
               reg_dt: formattedDate,
-              reg_id: reviewData.mem_id,
+              reg_id: reviewData.account_app_id,
               mod_dt: null,
               mod_id: null
             })
@@ -276,12 +280,12 @@ export class MemberReviewAppService {
     title: string;
     content: string;
     star_point: number;
-    mem_id: number;
+    account_app_id: number;
     file_ids?: number[];
     review_app_img_id?: number[];
   }): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { review_app_id, title, content, star_point, mem_id, review_app_img_id, file_ids } = updateData;
+      const { review_app_id, title, content, star_point, account_app_id, review_app_img_id, file_ids } = updateData;
       const mod_dt = getCurrentDateYYYYMMDDHHIISS();
       
       const result = await this.memberReviewAppRepository
@@ -292,7 +296,7 @@ export class MemberReviewAppService {
           content: content,
           star_point: star_point,
           mod_dt: mod_dt,
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where('review_app_id = :review_app_id', { review_app_id })
         .execute();
@@ -319,7 +323,7 @@ export class MemberReviewAppService {
             order_seq: order_seq,
             del_yn: 'N',
             reg_dt: mod_dt,
-            reg_id: mem_id,
+            reg_id: account_app_id,
             mod_dt: null,
             mod_id: null
           })
@@ -335,7 +339,7 @@ export class MemberReviewAppService {
             .set({
               del_yn: 'Y',
               mod_dt: mod_dt,
-              mod_id: mem_id
+              mod_id: account_app_id
             })
             .where('review_app_img_id = :review_app_img_id', { review_app_img_id: review_app_img_ids })
             .execute();
@@ -363,10 +367,10 @@ export class MemberReviewAppService {
 
   async deleteMemberReviewApp(deleteData: {
     review_app_id: number;
-    mem_id: number;
+    account_app_id: number;
   }): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { review_app_id, mem_id } = deleteData;
+      const { review_app_id, account_app_id } = deleteData;
       const mod_dt = getCurrentDateYYYYMMDDHHIISS();
       
       const result = await this.memberReviewAppRepository
@@ -375,7 +379,7 @@ export class MemberReviewAppService {
         .set({
           del_yn: 'Y',
           mod_dt: mod_dt,
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where('review_app_id = :review_app_id', { review_app_id })
         .execute();

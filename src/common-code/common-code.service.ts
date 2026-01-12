@@ -17,7 +17,7 @@ export class CommonCodeService {
         file_name,
         file_path,
         file_division,
-        mem_id
+        account_app_id
       } = insertCommonFileDto;
 
       const reg_dt = getCurrentDateYYYYMMDDHHIISS();
@@ -32,7 +32,7 @@ export class CommonCodeService {
           file_division,
           del_yn: 'N',
           reg_dt,
-          reg_id: mem_id,
+          reg_id: account_app_id,
           mod_dt: null,
           mod_id: null
         })
@@ -101,7 +101,7 @@ export class CommonCodeService {
     }
   }
 
-  async deleteCommonFile(file_id: number, mem_id: number): Promise<{ success: boolean; message: string; code: string }> {
+  async deleteCommonFile(file_id: number, account_app_id: number): Promise<{ success: boolean; message: string; code: string }> {
     try {
       const mod_dt = getCurrentDateYYYYMMDDHHIISS();
 
@@ -111,7 +111,7 @@ export class CommonCodeService {
         .set({
           del_yn: 'Y',
           mod_dt,
-          mod_id: mem_id
+          mod_id: account_app_id
         })
         .where('file_id = :file_id', { file_id })
         .execute();
