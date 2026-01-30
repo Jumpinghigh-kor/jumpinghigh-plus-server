@@ -55,6 +55,7 @@ import { MemberPaymentApp } from './entities/member-payment-app.entity';
 import { MemberPaymentAppModule } from './member-payment-app/member-payment-app.module';
 import { PortoneModule } from './portone/portone.module';
 import { DeliveryTrackerModule } from './delivery-tracker/delivery-tracker.module';
+import { MemberBodyAppModule } from './member-body-app/member-body-app.module';
 
 @Module({
   imports: [
@@ -108,7 +109,8 @@ import { DeliveryTrackerModule } from './delivery-tracker/delivery-tracker.modul
     MemberOrderAddressModule,
     MemberPaymentAppModule,
     PortoneModule,
-    DeliveryTrackerModule
+    DeliveryTrackerModule,
+    MemberBodyAppModule,
   ],
   controllers: [AppController],
   providers: [

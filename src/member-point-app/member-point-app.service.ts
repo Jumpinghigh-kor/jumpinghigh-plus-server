@@ -65,6 +65,45 @@ export class MemberPointAppService {
     }
   }
 
+  async getMemberPointAppTargetCnt(order_detail_app_id: string): Promise<{ success: boolean; data: any[] | null; code: string }> {
+    try {
+      const memberPointAppTargetCnt = await this.dataSource
+        .createQueryBuilder()
+        .select([
+          'COUNT(*) AS point_cnt'
+        ])
+        .from('member_point_app', 'mpa')
+        .where('mpa.order_detail_app_id = :order_detail_app_id')
+        .andWhere('mpa.del_yn = "N"')
+        .setParameters({order_detail_app_id: order_detail_app_id})
+        .getRawOne();
+        
+      if (!memberPointAppTargetCnt) {
+        return {
+          success: true,
+          data: null,
+          code: COMMON_RESPONSE_CODES.NO_DATA
+        };
+      }
+
+      return {
+        success: true,
+        data: memberPointAppTargetCnt,
+        code: COMMON_RESPONSE_CODES.SUCCESS
+      };
+    } catch (error) {
+      console.error('Error fetching member point app target cnt:', error);
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          code: COMMON_RESPONSE_CODES.FAIL
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
   async insertMemberPointApp(insertMemberPointAppDto: InsertMemberPointAppDto): Promise<{ success: boolean; data: { point_app_id: number } | null; code: string }> {
     try {
       const { order_detail_app_id, account_app_id, point_status, point_amount } = insertMemberPointAppDto;

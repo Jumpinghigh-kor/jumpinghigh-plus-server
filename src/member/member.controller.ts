@@ -25,9 +25,9 @@ export class MemberController {
 
   @Post('checkNicknameDuplicate')
   async checkNicknameDuplicate(
-    @Body() body: { nickname: string }
+    @Body() body: { nickname: string; account_app_id?: number }
   ): Promise<{ success: boolean; message: string; code: string }> {
-    return this.memberService.checkNicknameDuplicate(body.nickname);
+    return this.memberService.checkNicknameDuplicate(body.nickname, body.account_app_id);
   }
 
   @Post('completeSignup')

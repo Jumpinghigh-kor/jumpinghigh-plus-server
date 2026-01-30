@@ -85,6 +85,12 @@ export class GetMemberPointAppListDto {
   reg_ym: string;
 } 
 
+export class GetMemberPointAppTargetCntDto {
+  @IsString()
+  @IsNotEmpty()
+  order_detail_app_id: string;
+}
+
 export class InsertMemberPointAppDto {
   @IsNumber()
   @IsNotEmpty()

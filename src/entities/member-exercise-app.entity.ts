@@ -11,23 +11,11 @@ export class MemberExerciseApp {
   @Column({ name: 'exercise_dt' })
   exercise_dt: string;
 
-  @Column({ name: 'jumping_exercise_time' })
-  jumping_exercise_time: string;
+  @Column({ name: 'member_type', nullable: true })
+  member_type: string;
 
-  @Column({ name: 'jumping_intensity_level' })
-  jumping_intensity_level: string;
-
-  @Column({ name: 'jumping_heart_rate', nullable: true })
-  jumping_heart_rate: string; 
-
-  @Column({ name: 'other_exercise_type' })
-  other_exercise_type: string;
-
-  @Column({ name: 'other_exercise_time' })
-  other_exercise_time: string;
-
-  @Column({ name: 'other_exercise_calory' })
-  other_exercise_calory: number;
+  @Column({ name: 'del_yn', type: 'varchar', length: 1, nullable: true, default: 'N' })
+  del_yn: string;
 
   @Column({ name: 'reg_dt' })
   reg_dt: string;

@@ -33,7 +33,6 @@ export class MemberService {
           , 'm.center_id AS center_id'
           , 'maa.account_app_id AS account_app_id'
           , 'maa.login_id AS login_id'
-          , 'maa.password AS password'
           , 'maa.nickname AS nickname'
           , 'maa.status AS status'
           , 'maa.mem_role AS mem_role'
@@ -89,6 +88,33 @@ export class MemberService {
                 WHERE     smca.account_app_id = maa.account_app_id
                 AND       smca.del_yn = 'N'
               ) AS cart_cnt
+            `
+          , `
+              (
+                SELECT
+                  smba.height AS height
+                FROM      member_body_app smba
+                WHERE     smba.account_app_id = maa.account_app_id
+                AND       smba.del_yn = 'N'
+              ) AS height
+            `
+          , `
+              (
+                SELECT
+                  smba.birthday AS birthday
+                FROM      member_body_app smba
+                WHERE     smba.account_app_id = maa.account_app_id
+                AND       smba.del_yn = 'N'
+              ) AS birthday
+            `
+          , `
+              (
+                SELECT
+                  smba.weight AS weight
+                FROM      member_body_app smba
+                WHERE     smba.account_app_id = maa.account_app_id
+                AND       smba.del_yn = 'N'
+              ) AS weight
             `
         ])
         .leftJoin('member_account_app', 'maa', 'm.mem_id = maa.mem_id')
@@ -192,15 +218,20 @@ export class MemberService {
     }
   }
 
-  async checkNicknameDuplicate(nickname: string): Promise<{ success: boolean; message: string; code: string }> {
+  async checkNicknameDuplicate(nickname: string, account_app_id?: number): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const existingMember = await this.dataSource
+      const qb = this.dataSource
         .createQueryBuilder()
         .select('account_app_id')
         .from('member_account_app', 'maa')
         .where('maa.nickname = :nickname', { nickname })
-        .andWhere('maa.status = :status', { status: 'ACTIVE' })
-        .getRawOne();
+
+      // 닉네임 변경 시 본인 계정은 중복 검사에서 제외
+      if (account_app_id) {
+        qb.andWhere('maa.account_app_id != :account_app_id', { account_app_id });
+      }
+
+      const existingMember = await qb.getRawOne();
 
       if (existingMember) {
         return {
