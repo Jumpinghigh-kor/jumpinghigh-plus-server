@@ -21,6 +21,10 @@ export class MemberAccountApp {
   @Column({ name: 'password' })
   password: string;
 
+  // 생년월일
+  @Column({ name: 'birthday' })
+  birthday: string;
+
   // 상태
   @Column({ name: 'status' })
   status: string;

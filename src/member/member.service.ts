@@ -25,7 +25,6 @@ export class MemberService {
           'm.mem_id AS mem_id'
           , 'm.mem_name AS mem_name'
           , 'm.mem_phone AS mem_phone'
-          , 'm.mem_birth AS mem_birth'
           , 'm.mem_gender AS mem_gender'
           , 'm.mem_checkin_number AS mem_checkin_number'
           , 'm.mem_manager AS mem_manager'
@@ -34,6 +33,7 @@ export class MemberService {
           , 'maa.account_app_id AS account_app_id'
           , 'maa.login_id AS login_id'
           , 'maa.nickname AS nickname'
+          , 'maa.birthday AS birthday'
           , 'maa.status AS status'
           , 'maa.mem_role AS mem_role'
           , 'maa.push_yn AS push_yn'
@@ -101,15 +101,6 @@ export class MemberService {
           , `
               (
                 SELECT
-                  smba.birthday AS birthday
-                FROM      member_body_app smba
-                WHERE     smba.account_app_id = maa.account_app_id
-                AND       smba.del_yn = 'N'
-              ) AS birthday
-            `
-          , `
-              (
-                SELECT
                   smba.weight AS weight
                 FROM      member_body_app smba
                 WHERE     smba.account_app_id = maa.account_app_id
@@ -119,6 +110,7 @@ export class MemberService {
         ])
         .leftJoin('member_account_app', 'maa', 'm.mem_id = maa.mem_id')
         .where('maa.account_app_id = :account_app_id', { account_app_id })
+        .andWhere('maa.del_yn = :del_yn', { del_yn: 'N' })
         .getRawOne();
 
       if (!memberInfo) {
@@ -225,6 +217,7 @@ export class MemberService {
         .select('account_app_id')
         .from('member_account_app', 'maa')
         .where('maa.nickname = :nickname', { nickname })
+        .andWhere('maa.del_yn = :del_yn', { del_yn: 'N' });
 
       // 닉네임 변경 시 본인 계정은 중복 검사에서 제외
       if (account_app_id) {
@@ -306,11 +299,12 @@ export class MemberService {
   async findId(mem_name: string, mem_phone: string): Promise<{ success: boolean; message: string; code: string; data: any}> {
     try {
       const existingMember = await this.memberRepository
-        .createQueryBuilder()
-        .select(['maa.login_id', 'DATE_FORMAT(maa.reg_dt, "%Y.%m.%d") AS reg_dt'])
+        .createQueryBuilder('m')
+        .select(['maa.login_id AS login_id', 'DATE_FORMAT(maa.reg_dt, "%Y.%m.%d") AS reg_dt'])
         .leftJoin('member_account_app', 'maa', 'm.mem_id = maa.mem_id')
-        .where('mem_name = :mem_name', { mem_name })
-        .andWhere('mem_phone = :mem_phone', { mem_phone })
+        .where('m.mem_name = :mem_name', { mem_name })
+        .andWhere('m.mem_phone = :mem_phone', { mem_phone })
+        .andWhere('maa.del_yn = :del_yn', { del_yn: 'N' })
         .getRawOne();
 
       if (!existingMember) {
@@ -346,12 +340,13 @@ export class MemberService {
       const {  login_id, mem_name, mem_phone } = findPasswordDto;
       
       const member = await this.memberRepository
-        .createQueryBuilder()
-        .select('account_app_id')
+        .createQueryBuilder('m')
+        .select(['maa.account_app_id AS account_app_id'])
         .leftJoin('member_account_app', 'maa', 'm.mem_id = maa.mem_id')
-        .where('mem_name = :mem_name', { mem_name })
-        .andWhere('mem_phone = :mem_phone', { mem_phone })
+        .where('m.mem_name = :mem_name', { mem_name })
+        .andWhere('m.mem_phone = :mem_phone', { mem_phone })
         .andWhere('maa.login_id = :login_id', { login_id })
+        .andWhere('maa.del_yn = :del_yn', { del_yn: 'N' })
         .getRawOne();
 
       if (!member) {

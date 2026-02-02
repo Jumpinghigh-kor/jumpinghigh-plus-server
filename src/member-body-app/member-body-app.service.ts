@@ -23,7 +23,6 @@ export class MemberBodyAppService {
           'mba.body_app_id AS body_app_id',
           'mba.height AS height',
           'mba.weight AS weight',
-          'mba.birthday AS birthday',
           'mba.reg_dt AS reg_dt',
         ])
         .from('member_body_app', 'mba')
@@ -53,7 +52,7 @@ export class MemberBodyAppService {
     dto: InsertMemberBodyAppDto,
   ): Promise<{ success: boolean; data: { body_app_id: number } | null; code: string }> {
     try {
-      const { account_app_id, height, weight, birthday } = dto;
+      const { account_app_id, height, weight } = dto;
 
       const result = await this.dataSource
         .createQueryBuilder()
@@ -63,7 +62,6 @@ export class MemberBodyAppService {
           account_app_id: account_app_id,
           height: height ?? null,
           weight: weight ?? null,
-          birthday: birthday ?? null,
           del_yn: 'N',
           reg_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
           reg_id: account_app_id,
@@ -92,7 +90,7 @@ export class MemberBodyAppService {
     dto: UpdateMemberBodyAppDto,
   ): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { account_app_id, body_app_id, height, weight, birthday } = dto;
+      const { account_app_id, body_app_id, height, weight } = dto;
 
       const result = await this.dataSource
         .createQueryBuilder()
@@ -100,7 +98,6 @@ export class MemberBodyAppService {
         .set({
           height: height ?? null,
           weight: weight ?? null,
-          birthday: birthday ?? null,
           mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
           mod_id: account_app_id,
         })

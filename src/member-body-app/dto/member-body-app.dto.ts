@@ -18,9 +18,6 @@ export class MemberBodyApp {
   @Column({ type: 'int', nullable: true })
   weight: number;
 
-  @Column({ type: 'varchar', nullable: true })
-  birthday: string;
-
   @Column({ type: 'varchar', length: 1, default: 'N' })
   del_yn: string;
 
@@ -64,10 +61,6 @@ export class InsertMemberBodyAppDto {
   @Transform(({ value }) => Number(value))
   weight?: number;
 
-  @IsOptional()
-  @Transform(({ value }) => String(value))
-  birthday?: string;
-
   // 프론트에서 같이 보내는 경우가 있어 validation 통과용으로 허용
   @IsOptional()
   @IsIn(['N', 'Y'])
@@ -106,10 +99,6 @@ export class UpdateMemberBodyAppDto {
   @IsOptional()
   @Transform(({ value }) => Number(value))
   weight?: number;
-
-  @IsOptional()
-  @Transform(({ value }) => String(value))
-  birthday?: string;
 }
 
 
