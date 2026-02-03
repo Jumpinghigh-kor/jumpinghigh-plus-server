@@ -57,6 +57,7 @@ export class MemberOrderAppService {
                   END
                 FROM  member_review_app smra
                 WHERE smra.account_app_id = moa.account_app_id
+                AND   smra.order_app_id = moa.order_app_id
                 AND   smra.product_app_id = pda.product_app_id
                 AND   smra.del_yn = 'N'
             ) AS review_yn`

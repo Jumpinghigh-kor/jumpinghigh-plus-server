@@ -126,33 +126,27 @@ export class MemberReviewAppService {
               (
                 SELECT
                   spda.option_unit
-                FROM        member_order_app smoa
-                INNER JOIN  member_order_detail_app smoda ON smoa.order_app_id = smoda.order_app_id
-                INNER JOIN  product_detail_app spda ON smoda.product_detail_app_id = spda.product_detail_app_id
-                WHERE       smoa.order_app_id = mra.order_app_id
-                AND       smoa.del_yn = 'N'
+                FROM      product_app spa
+				        LEFT JOIN	product_detail_app spda ON spa.product_app_id = spda.product_app_id
+                WHERE 		spa.product_app_id = mra.product_app_id
               ) AS option_unit
             `
           , `
               (
                 SELECT
                   spda.option_amount
-                FROM        member_order_app smoa
-                INNER JOIN  member_order_detail_app smoda ON smoa.order_app_id = smoda.order_app_id
-                INNER JOIN  product_detail_app spda ON smoda.product_detail_app_id = spda.product_detail_app_id
-                WHERE       smoa.order_app_id = mra.order_app_id
-                AND         smoa.del_yn = 'N'
+                FROM      product_app spa
+				        LEFT JOIN	product_detail_app spda ON spa.product_app_id = spda.product_app_id
+                WHERE 		spa.product_app_id = mra.product_app_id
               ) AS option_amount
             `
           , `
               (
                 SELECT
-                  smoda.order_quantity
-                FROM        member_order_app smoa
-                INNER JOIN  member_order_detail_app smoda ON smoa.order_app_id = smoda.order_app_id
-                INNER JOIN  product_detail_app spda ON smoda.product_detail_app_id = spda.product_detail_app_id
-                WHERE       smoa.order_app_id = mra.order_app_id
-                AND         smoa.del_yn = 'N'
+                  spda.quantity
+                FROM      product_app spa
+				        LEFT JOIN	product_detail_app spda ON spa.product_app_id = spda.product_app_id
+                WHERE 		spa.product_app_id = mra.product_app_id
               ) AS order_quantity
             `
         ])
